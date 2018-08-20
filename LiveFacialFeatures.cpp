@@ -4,8 +4,8 @@
 #include "stdafx.h"
 #include "LuxandFaceSDK.h"
 
-char facialFeaturesName[100][FSDK_FACIAL_FEATURE_COUNT] = 
-{ 
+char facialFeaturesName[100][FSDK_FACIAL_FEATURE_COUNT] =
+{
 	"FSDKP_LEFT_EYE",
 	"FSDKP_RIGHT_EYE",
 	"FSDKP_NOSE_TIP",
@@ -127,7 +127,7 @@ void drawingLine(HDC dc, HPEN FeatureLinePen, HBRUSH FeatureLineBrush, FSDK_Feat
 	LineTo(dc, facialFeatures[31].x, 16 + facialFeatures[31].y);
 	LineTo(dc, facialFeatures[41].x, 16 + facialFeatures[41].y);
 	LineTo(dc, facialFeatures[25].x, 16 + facialFeatures[25].y);
-	
+
 	//ç∂ÇŸÇ§ÇÍÇ¢ê¸
 	MoveToEx(dc, facialFeatures[45].x, 16 + facialFeatures[45].y, NULL);
 	LineTo(dc, facialFeatures[50].x, 16 + facialFeatures[50].y);
@@ -159,9 +159,9 @@ void drawingLine(HDC dc, HPEN FeatureLinePen, HBRUSH FeatureLineBrush, FSDK_Feat
 
 }
 
-void Get_Angle(FSDK_Features facialFeatures) {
-	double rad[36];
 
+void Get_Angle(FSDK_Features facialFeatures){
+	double rad[36];
 	//ç∂î˚
 	rad[0] = atan2(facialFeatures[18].y - facialFeatures[12].y, facialFeatures[18].x - facialFeatures[12].x);
 	rad[1] = atan2(facialFeatures[16].y - facialFeatures[18].y, facialFeatures[16].x - facialFeatures[18].x);
@@ -218,11 +218,6 @@ void Get_Angle(FSDK_Features facialFeatures) {
 	}
 	printf("-----------------------------------");
 }
-
-
-
-
-
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -347,8 +342,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 				Get_Angle(facialFeatures);
 			}
-			
-
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
 				break;
 		}
@@ -368,4 +361,3 @@ int _tmain(int argc, _TCHAR* argv[])
 	FSDK_Finalize();
 	return 0;
 }
-
