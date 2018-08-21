@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "LuxandFaceSDK.h"
+#include <vector>
 
 char facialFeaturesName[100][FSDK_FACIAL_FEATURE_COUNT] =
 {
@@ -160,64 +161,147 @@ void drawingLine(HDC dc, HPEN FeatureLinePen, HBRUSH FeatureLineBrush, FSDK_Feat
 }
 
 
-void Get_Angle(FSDK_Features facialFeatures){
-	double rad[36];
+std::vector<double> Get_Angle(FSDK_Features facialFeatures){
+	std::vector<double> rad;
 	//¶”û
-	rad[0] = atan2(facialFeatures[18].y - facialFeatures[12].y, facialFeatures[18].x - facialFeatures[12].x);
-	rad[1] = atan2(facialFeatures[16].y - facialFeatures[18].y, facialFeatures[16].x - facialFeatures[18].x);
-	rad[2] = atan2(facialFeatures[19].y - facialFeatures[16].y, facialFeatures[19].x - facialFeatures[16].x);
-	rad[3] = atan2(facialFeatures[13].y - facialFeatures[19].y, facialFeatures[13].x - facialFeatures[19].x);
+	rad.push_back(atan2(facialFeatures[18].y - facialFeatures[12].y, facialFeatures[18].x - facialFeatures[12].x));
+	rad.push_back(atan2(facialFeatures[16].y - facialFeatures[18].y, facialFeatures[16].x - facialFeatures[18].x));
+	rad.push_back(atan2(facialFeatures[19].y - facialFeatures[16].y, facialFeatures[19].x - facialFeatures[16].x));
+	rad.push_back(atan2(facialFeatures[13].y - facialFeatures[19].y, facialFeatures[13].x - facialFeatures[19].x));
 
 	//‰E”û
-	rad[4] = atan2(facialFeatures[20].y - facialFeatures[14].y, facialFeatures[20].x - facialFeatures[14].x);
-	rad[5] = atan2(facialFeatures[17].y - facialFeatures[20].y, facialFeatures[17].x - facialFeatures[20].x);
-	rad[6] = atan2(facialFeatures[21].y - facialFeatures[17].y, facialFeatures[21].x - facialFeatures[17].x);
-	rad[7] = atan2(facialFeatures[15].y - facialFeatures[21].y, facialFeatures[15].x - facialFeatures[21].x);
+	rad.push_back(atan2(facialFeatures[20].y - facialFeatures[14].y, facialFeatures[20].x - facialFeatures[14].x));
+	rad.push_back(atan2(facialFeatures[17].y - facialFeatures[20].y, facialFeatures[17].x - facialFeatures[20].x));
+	rad.push_back(atan2(facialFeatures[21].y - facialFeatures[17].y, facialFeatures[21].x - facialFeatures[17].x));
+	rad.push_back(atan2(facialFeatures[15].y - facialFeatures[21].y, facialFeatures[15].x - facialFeatures[21].x));
 
 	//¶–Ú
-	rad[8] = atan2(facialFeatures[35].y - facialFeatures[23].y, facialFeatures[35].x - facialFeatures[23].x);
-	rad[9] = atan2(facialFeatures[28].y - facialFeatures[35].y, facialFeatures[28].x - facialFeatures[35].x);
-	rad[10] = atan2(facialFeatures[36].y - facialFeatures[28].y, facialFeatures[36].x - facialFeatures[28].x);
-	rad[11] = atan2(facialFeatures[24].y - facialFeatures[36].y, facialFeatures[24].x - facialFeatures[36].x);
-	rad[12] = atan2(facialFeatures[37].y - facialFeatures[23].y, facialFeatures[37].x - facialFeatures[23].x);
-	rad[13] = atan2(facialFeatures[27].y - facialFeatures[37].y, facialFeatures[27].x - facialFeatures[37].x);
-	rad[14] = atan2(facialFeatures[38].y - facialFeatures[27].y, facialFeatures[38].x - facialFeatures[27].x);
-	rad[15] = atan2(facialFeatures[24].y - facialFeatures[38].y, facialFeatures[24].x - facialFeatures[38].x);
+	rad.push_back(atan2(facialFeatures[35].y - facialFeatures[23].y, facialFeatures[35].x - facialFeatures[23].x));
+	rad.push_back(atan2(facialFeatures[28].y - facialFeatures[35].y, facialFeatures[28].x - facialFeatures[35].x));
+	rad.push_back(atan2(facialFeatures[36].y - facialFeatures[28].y, facialFeatures[36].x - facialFeatures[28].x));
+	rad.push_back(atan2(facialFeatures[24].y - facialFeatures[36].y, facialFeatures[24].x - facialFeatures[36].x));
+	rad.push_back(atan2(facialFeatures[37].y - facialFeatures[23].y, facialFeatures[37].x - facialFeatures[23].x));
+	rad.push_back(atan2(facialFeatures[27].y - facialFeatures[37].y, facialFeatures[27].x - facialFeatures[37].x));
+	rad.push_back(atan2(facialFeatures[38].y - facialFeatures[27].y, facialFeatures[38].x - facialFeatures[27].x));
+	rad.push_back(atan2(facialFeatures[24].y - facialFeatures[38].y, facialFeatures[24].x - facialFeatures[38].x));
 
 	//‰E–Ú
-	rad[16] = atan2(facialFeatures[39].y - facialFeatures[25].y, facialFeatures[39].x - facialFeatures[25].x);
-	rad[17] = atan2(facialFeatures[32].y - facialFeatures[39].y, facialFeatures[32].x - facialFeatures[39].x);
-	rad[18] = atan2(facialFeatures[40].y - facialFeatures[32].y, facialFeatures[40].x - facialFeatures[32].x);
-	rad[19] = atan2(facialFeatures[26].y - facialFeatures[40].y, facialFeatures[26].x - facialFeatures[40].x);
-	rad[20] = atan2(facialFeatures[41].y - facialFeatures[25].y, facialFeatures[41].x - facialFeatures[25].x);
-	rad[21] = atan2(facialFeatures[31].y - facialFeatures[41].y, facialFeatures[31].x - facialFeatures[41].x);
-	rad[22] = atan2(facialFeatures[42].y - facialFeatures[31].y, facialFeatures[42].x - facialFeatures[31].x);
-	rad[23] = atan2(facialFeatures[26].y - facialFeatures[42].y, facialFeatures[26].x - facialFeatures[42].x);
+	rad.push_back(atan2(facialFeatures[39].y - facialFeatures[25].y, facialFeatures[39].x - facialFeatures[25].x));
+	rad.push_back(atan2(facialFeatures[32].y - facialFeatures[39].y, facialFeatures[32].x - facialFeatures[39].x));
+	rad.push_back(atan2(facialFeatures[40].y - facialFeatures[32].y, facialFeatures[40].x - facialFeatures[32].x));
+	rad.push_back(atan2(facialFeatures[26].y - facialFeatures[40].y, facialFeatures[26].x - facialFeatures[40].x));
+	rad.push_back(atan2(facialFeatures[41].y - facialFeatures[25].y, facialFeatures[41].x - facialFeatures[25].x));
+	rad.push_back(atan2(facialFeatures[31].y - facialFeatures[41].y, facialFeatures[31].x - facialFeatures[41].x));
+	rad.push_back(atan2(facialFeatures[42].y - facialFeatures[31].y, facialFeatures[42].x - facialFeatures[31].x));
+	rad.push_back(atan2(facialFeatures[26].y - facialFeatures[42].y, facialFeatures[26].x - facialFeatures[42].x));
 
 	//¶‚Ù‚¤‚ê‚¢ü
-	rad[24] = atan2(facialFeatures[50].y - facialFeatures[45].y, facialFeatures[50].x - facialFeatures[45].x);
-	rad[25] = atan2(facialFeatures[52].y - facialFeatures[50].y, facialFeatures[52].x - facialFeatures[50].x);
+	rad.push_back(atan2(facialFeatures[50].y - facialFeatures[45].y, facialFeatures[50].x - facialFeatures[45].x));
+	rad.push_back(atan2(facialFeatures[52].y - facialFeatures[50].y, facialFeatures[52].x - facialFeatures[50].x));
 
 	//‰E‚Ù‚¤‚ê‚¢ü
-	rad[26] = atan2(facialFeatures[51].y - facialFeatures[46].y, facialFeatures[51].x - facialFeatures[46].x);
-	rad[27] = atan2(facialFeatures[53].y - facialFeatures[51].y, facialFeatures[53].x - facialFeatures[51].x);
+	rad.push_back(atan2(facialFeatures[51].y - facialFeatures[46].y, facialFeatures[51].x - facialFeatures[46].x));
+	rad.push_back(atan2(facialFeatures[53].y - facialFeatures[51].y, facialFeatures[53].x - facialFeatures[51].x));
 
 	//Œû
-	rad[28] = atan2(facialFeatures[56].y - facialFeatures[3].y, facialFeatures[56].x - facialFeatures[3].x);
-	rad[29] = atan2(facialFeatures[54].y - facialFeatures[56].y, facialFeatures[54].x - facialFeatures[56].x);
-	rad[30] = atan2(facialFeatures[57].y - facialFeatures[54].y, facialFeatures[57].x - facialFeatures[54].x);
-	rad[31] = atan2(facialFeatures[4].y - facialFeatures[57].y, facialFeatures[4].x - facialFeatures[57].x);
-	rad[32] = atan2(facialFeatures[58].y - facialFeatures[3].y, facialFeatures[58].x - facialFeatures[3].x);
-	rad[33] = atan2(facialFeatures[55].y - facialFeatures[58].y, facialFeatures[55].x - facialFeatures[58].x);
-	rad[34] = atan2(facialFeatures[59].y - facialFeatures[55].y, facialFeatures[59].x - facialFeatures[55].x);
-	rad[35] = atan2(facialFeatures[4].y - facialFeatures[59].y, facialFeatures[4].x - facialFeatures[59].x);
+	rad.push_back(atan2(facialFeatures[56].y - facialFeatures[3].y, facialFeatures[56].x - facialFeatures[3].x));
+	rad.push_back(atan2(facialFeatures[54].y - facialFeatures[56].y, facialFeatures[54].x - facialFeatures[56].x));
+	rad.push_back(atan2(facialFeatures[57].y - facialFeatures[54].y, facialFeatures[57].x - facialFeatures[54].x));
+	rad.push_back(atan2(facialFeatures[4].y - facialFeatures[57].y, facialFeatures[4].x - facialFeatures[57].x));
+	rad.push_back(atan2(facialFeatures[58].y - facialFeatures[3].y, facialFeatures[58].x - facialFeatures[3].x));
+	rad.push_back(atan2(facialFeatures[55].y - facialFeatures[58].y, facialFeatures[55].x - facialFeatures[58].x));
+	rad.push_back(atan2(facialFeatures[59].y - facialFeatures[55].y, facialFeatures[59].x - facialFeatures[55].x));
+	rad.push_back(atan2(facialFeatures[4].y - facialFeatures[59].y, facialFeatures[4].x - facialFeatures[59].x));
 
-	for (int i = 0; i <= 35; i++) {
+	for (int i = 0; i < rad.size(); i++) {
 		rad[i] = rad[i] * 180.0 / (3.14159265358979323);
 		printf("%lf \n", rad[i]);
 	}
-	printf("-----------------------------------");
+	printf("-----------------------------------\n");
+
+	return rad;
 }
+
+void show_AngleDifference(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures) 
+{
+	std::vector<double> rad = Get_Angle(facialFeatures);
+	std::vector<double> model_rad = Get_Angle(model_facialFeatures);
+
+	for (int i = 0; i < rad.size(); i++) {
+		printf("%lf \n", model_rad[i]-rad[i]);
+	}
+	printf("-----------------------------------\n");
+}
+
+bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
+{
+	TFacePosition facePosition;
+	HImage ResizedImageHandle;
+	FSDK_CreateEmptyImage(&ResizedImageHandle);
+	bool ImageOpened = false;
+	int FaceDetected = -1;
+	int width, height;
+
+	RECT ClientRect;
+	GetClientRect(hwnd, &ClientRect);
+
+	HImage imageHandle;
+	OPENFILENAMEA oFile;
+	char szPath[MAX_PATH];
+	char szDir[MAX_PATH];
+	ZeroMemory(&oFile, sizeof(oFile));
+	GetCurrentDirectoryA(sizeof(szDir), szDir);
+	lstrcpyA(szPath, "");
+	oFile.lStructSize = sizeof(oFile);
+	oFile.hwndOwner = hwnd;
+	oFile.hInstance = NULL;
+	oFile.lpstrFilter = "Images(*.jpg;*.jpeg;*.jpe;*.jfif;*.bmp;*.png)\0*.jpg;*.jpeg;*.jpe;*.jfif;*.bmp;*.png\0\0";
+	oFile.lpstrFile = szPath;
+	oFile.nMaxFile = sizeof(szPath);
+	oFile.lpstrInitialDir = szDir;
+	oFile.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+	oFile.lpstrDefExt = NULL;
+	if (GetOpenFileNameA(&oFile) && FSDKE_OK == FSDK_LoadImageFromFile(&imageHandle, oFile.lpstrFile))
+	{
+		FaceDetected = FSDK_DetectFace(imageHandle, &facePosition);
+		if (FaceDetected == FSDKE_OK)
+			FSDK_DetectFacialFeaturesInRegion(imageHandle, &facePosition, &model_facialFeatures);
+
+		FSDK_GetImageWidth(imageHandle, &width);
+		FSDK_GetImageHeight(imageHandle, &height);
+		double resizeCoefficient = min(ClientRect.right / (double)width, (ClientRect.bottom - 16) / (double)height);
+
+		FSDK_FreeImage(ResizedImageHandle);
+		FSDK_CreateEmptyImage(&ResizedImageHandle);
+		FSDK_ResizeImage(imageHandle, resizeCoefficient, ResizedImageHandle);
+
+		FSDK_GetImageWidth(ResizedImageHandle, &width);
+		FSDK_GetImageHeight(ResizedImageHandle, &height);
+
+		FSDK_FreeImage(imageHandle);// delete the FSDK image handle
+
+		if (FaceDetected == FSDKE_OK)
+		{
+			facePosition.xc = (int)(resizeCoefficient * facePosition.xc);
+			facePosition.yc = (int)(resizeCoefficient * facePosition.yc);
+			facePosition.w = (int)(resizeCoefficient * facePosition.w);
+			for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
+			{
+				model_facialFeatures[i].x = (int)(resizeCoefficient * model_facialFeatures[i].x);
+				model_facialFeatures[i].y = (int)(resizeCoefficient * model_facialFeatures[i].y);
+			}
+		}
+
+		ImageOpened = true;
+		InvalidateRect(hwnd, NULL, TRUE);
+
+		return true;
+	}
+
+	return false;
+}
+
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -278,6 +362,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	HPEN FeatureLinePen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
 	HBRUSH FeatureLineBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
 
+	HPEN FeatureLinePen_model = CreatePen(PS_SOLID, 1, RGB(135,55, 215));
+	HBRUSH FeatureLineBrush_model = (HBRUSH)GetStockObject(NULL_BRUSH);
+
 	HPEN FeatureCirclesPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
 	LOGBRUSH brush;
 	brush.lbColor = RGB(0, 0, 255);
@@ -287,9 +374,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	SendMessage(hwnd, LB_ADDSTRING, 0, (LPARAM)(L"Press Esc to exit ..."));
 
 	MSG msg = { 0 };
+	bool model_flag = false;
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		FSDK_Features facialFeatures;
+		FSDK_Features model_facialFeatures;
+		TFacePosition facePosition;
 		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
 			long long faceCount = 0;
@@ -301,7 +391,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
 
 			for (int i = 0; i < faceCount; i++) {
-				TFacePosition facePosition;
 
 				FSDK_GetTrackerFacePosition(tracker, 0, IDs[i], &facePosition);
 				FSDK_GetTrackerFacialFeatures(tracker, 0, IDs[i], &facialFeatures);
@@ -316,6 +405,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
 
 				drawingLine(dc, FeatureLinePen, FeatureLineBrush, facialFeatures);
+				if(model_flag){drawingLine(dc, FeatureLinePen_model, FeatureLineBrush_model, model_facialFeatures);}
 
 				SelectObject(dc, FeatureCirclesPen);
 				SelectObject(dc, FeatureCirclesBrush);
@@ -342,8 +432,21 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 				Get_Angle(facialFeatures);
 			}
+
+			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
+			{
+				model_flag = false;
+				if (make_model(hwnd, model_facialFeatures))
+				{
+					model_flag = true;
+					show_AngleDifference(facialFeatures,model_facialFeatures);
+				}
+			}
+
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
 				break;
+
+
 		}
 	}
 
