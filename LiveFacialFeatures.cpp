@@ -375,6 +375,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	MSG msg = { 0 };
 	bool model_flag = false;
+	HImage sub_imageHandle;
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		FSDK_Features facialFeatures;
@@ -414,6 +415,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			}
 
+
 			DeleteObject(hbitmapHandle); // delete the HBITMAP object
 			FSDK_FreeImage(imageHandle);// delete the FSDK image handle
 		}
@@ -436,10 +438,12 @@ int _tmain(int argc, _TCHAR* argv[])
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
-				if (make_model(hwnd, model_facialFeatures))
-				{
-					model_flag = true;
-					show_AngleDifference(facialFeatures,model_facialFeatures);
+				if (make_model(hwnd, model_facialFeatures)){model_flag = true;}
+			}
+			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_CONTROL)
+			{
+				if(model_flag){
+					show_AngleDifference(facialFeatures, model_facialFeatures);
 				}
 			}
 
