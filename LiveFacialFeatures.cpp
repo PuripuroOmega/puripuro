@@ -377,6 +377,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	bool model_flag = false;
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
+		HImage backupHandle;
+		FSDK_CreateEmptyImage(&backupHandle);
 		FSDK_Features facialFeatures;
 		FSDK_Features model_facialFeatures;
 		TFacePosition facePosition;
@@ -413,7 +415,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					Ellipse(dc, facialFeatures[i].x - 2, 16 + facialFeatures[i].y - 2, facialFeatures[i].x + 2, 16 + facialFeatures[i].y + 2);
 
 			}
-
+			FSDK_CopyImage(imageHandle , backupHandle);
 			DeleteObject(hbitmapHandle); // delete the HBITMAP object
 			FSDK_FreeImage(imageHandle);// delete the FSDK image handle
 		}
@@ -426,11 +428,13 @@ int _tmain(int argc, _TCHAR* argv[])
 			if (msg.message == WM_KEYDOWN && msg.wParam == VK_RETURN)
 			{
 				SavefacialFeatures(facialFeatures);
+				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
 
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
 			{
 				Get_Angle(facialFeatures);
+				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
 
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
@@ -440,6 +444,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 					model_flag = true;
 					show_AngleDifference(facialFeatures,model_facialFeatures);
+					FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 				}
 			}
 
