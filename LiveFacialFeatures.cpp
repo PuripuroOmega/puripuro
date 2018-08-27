@@ -380,7 +380,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		FSDK_Features facialFeatures;
 		FSDK_Features model_facialFeatures;
 		TFacePosition facePosition;
-		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK) { // grab the current frame from the camera
+		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle,TRUE)==FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
 			long long faceCount = 0;
 			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
