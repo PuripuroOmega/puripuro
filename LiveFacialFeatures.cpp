@@ -222,7 +222,7 @@ std::vector<double> Get_Angle(FSDK_Features facialFeatures){
 	return rad;
 }
 
-void show_AngleDifference(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures) 
+void show_AngleDifference(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
 {
 	std::vector<double> rad = Get_Angle(facialFeatures);
 	std::vector<double> model_rad = Get_Angle(model_facialFeatures);
@@ -375,6 +375,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	MSG msg = { 0 };
 	bool model_flag = false;
+	HImage sub_imageHandle;
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		HImage backupHandle;
@@ -382,7 +383,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		FSDK_Features facialFeatures;
 		FSDK_Features model_facialFeatures;
 		TFacePosition facePosition;
-		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK) { // grab the current frame from the camera
+		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle,TRUE)==FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
 			long long faceCount = 0;
 			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
@@ -416,6 +417,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			}
 			FSDK_CopyImage(imageHandle , backupHandle);
+
 			DeleteObject(hbitmapHandle); // delete the HBITMAP object
 			FSDK_FreeImage(imageHandle);// delete the FSDK image handle
 		}
@@ -440,10 +442,12 @@ int _tmain(int argc, _TCHAR* argv[])
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
-				if (make_model(hwnd, model_facialFeatures))
-				{
-					model_flag = true;
-					show_AngleDifference(facialFeatures,model_facialFeatures);
+				if (make_model(hwnd, model_facialFeatures)){model_flag = true;}
+			}
+			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_CONTROL)
+			{
+				if(model_flag){
+					show_AngleDifference(facialFeatures, model_facialFeatures);
 					FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 				}
 			}
