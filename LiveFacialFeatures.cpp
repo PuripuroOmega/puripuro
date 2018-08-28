@@ -407,15 +407,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
 	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
 
-	HPEN FeatureLinePen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
+	HPEN FeatureLinePen = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
 	HBRUSH FeatureLineBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
 
-	HPEN FeatureLinePen_model = CreatePen(PS_SOLID, 1, RGB(135, 55, 215));
+	HPEN FeatureLinePen_model = CreatePen(PS_SOLID, 3, RGB(0, 0, 255));
 	HBRUSH FeatureLineBrush_model = (HBRUSH)GetStockObject(NULL_BRUSH);
 
-	HPEN FeatureCirclesPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
+	HPEN FeatureCirclesPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 	LOGBRUSH brush;
-	brush.lbColor = RGB(0, 0, 255);
+	brush.lbColor = RGB(255, 255, 255);
 	brush.lbStyle = BS_SOLID;
 	HBRUSH FeatureCirclesBrush = CreateBrushIndirect(&brush);
 
@@ -466,11 +466,12 @@ int _tmain(int argc, _TCHAR* argv[])
 				if (model_flag) {
 					ReArrangement(facialFeatures, model_facialFeatures, mag_facialFeatures);
 					drawingLine(dc, FeatureLinePen, FeatureLineBrush, FeatureLinePen_model, FeatureLineBrush_model, facialFeatures, mag_facialFeatures);
-				 }
-				SelectObject(dc, FeatureCirclesPen);
-				SelectObject(dc, FeatureCirclesBrush);
-				for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
-					Ellipse(dc, model_facialFeatures[i].x - 2, 16 + model_facialFeatures[i].y - 2, model_facialFeatures[i].x + 2, 16 + model_facialFeatures[i].y + 2);
+					SelectObject(dc, FeatureCirclesPen);
+					SelectObject(dc, FeatureCirclesBrush);
+					for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
+						Ellipse(dc, mag_facialFeatures[i].x - 2, 16 + mag_facialFeatures[i].y - 2, mag_facialFeatures[i].x + 2, 16 + mag_facialFeatures[i].y + 2);
+				}
+
 
 			}
 			FSDK_CopyImage(imageHandle, backupHandle);
