@@ -301,6 +301,18 @@ bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
 	return false;
 }
 
+void ReArrangement(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, FSDK_Features &mag_facialFeatures) {
+	double magnification;
+	magnification = (double)(facialFeatures[67].x - facialFeatures[66].x) / (model_facialFeatures[67].x - model_facialFeatures[66].x);
+	int gap_x[FSDK_FACIAL_FEATURE_COUNT],gap_y[FSDK_FACIAL_FEATURE_COUNT];
+	for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
+	{
+		gap_x[i] = (model_facialFeatures[i].x - model_facialFeatures[2].x)*magnification;
+		mag_facialFeatures[i].x = facialFeatures[2].x + gap_x[i];
+		gap_y[i] = (model_facialFeatures[i].y - model_facialFeatures[2].y)*magnification;
+		mag_facialFeatures[i].y = facialFeatures[2].y + gap_y[i];
+	}
+}
 
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -382,6 +394,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		FSDK_CreateEmptyImage(&backupHandle);
 		FSDK_Features facialFeatures;
 		FSDK_Features model_facialFeatures;
+		FSDK_Features mag_facialFeatures;//‚¨Žè–{‚Ì”{—¦•ÏX”Å
 		TFacePosition facePosition;
 		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle,TRUE)==FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
@@ -408,7 +421,10 @@ int _tmain(int argc, _TCHAR* argv[])
 				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
 
 				drawingLine(dc, FeatureLinePen, FeatureLineBrush, facialFeatures);
-				if(model_flag){drawingLine(dc, FeatureLinePen_model, FeatureLineBrush_model, model_facialFeatures);}
+				if(model_flag){
+					ReArrangement(facialFeatures, model_facialFeatures, mag_facialFeatures);
+					drawingLine(dc, FeatureLinePen_model, FeatureLineBrush_model, mag_facialFeatures);
+				}
 
 				SelectObject(dc, FeatureCirclesPen);
 				SelectObject(dc, FeatureCirclesBrush);
@@ -448,6 +464,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 				if(model_flag){
 					show_AngleDifference(facialFeatures, model_facialFeatures);
+					ReArrangement(facialFeatures, model_facialFeatures, mag_facialFeatures);
 					FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 				}
 			}
