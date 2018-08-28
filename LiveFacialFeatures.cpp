@@ -79,6 +79,15 @@ char facialFeaturesName[100][FSDK_FACIAL_FEATURE_COUNT] =
 	"FSDKP_FACE_CONTOUR17"
 };
 
+int num_array[58] = { 0,13,19,16,18,12,//左眉
+					  0,14,20,17,21,15,//右眉
+					  0,24,36,28,35,23,37,27,38,24,//左目
+					  0,25,39,32,40,26,42,31,41,25,//右目
+					  0,45,50,52,//左ほうれい線
+					  0,46,51,53,//右ほうれい線
+					  0,3,56,54,57,4,62,61,60,3,63,64,65,4,59,55,58,3//口
+					};
+
 
 void SavefacialFeatures(FSDK_Features facialFeatures)
 {
@@ -88,17 +97,43 @@ void SavefacialFeatures(FSDK_Features facialFeatures)
 	}
 }
 
-void drawingLine(HDC dc, HPEN FeatureLinePen, HBRUSH FeatureLineBrush, FSDK_Features facialFeatures)
-{
-	SelectObject(dc, FeatureLinePen);
-	SelectObject(dc, FeatureLineBrush);
+bool find_angle_each_parts(int i, int j, FSDK_Features facialFeatures, FSDK_Features model_facialFeatures) {
+	double angle = atan2(facialFeatures[i].y - facialFeatures[j].y, facialFeatures[i].x - facialFeatures[j].x) * 180.0 / (3.14159265358979323);
+	double model_angle = atan2(model_facialFeatures[i].y - model_facialFeatures[j].y, model_facialFeatures[i].x - model_facialFeatures[j].x) * 180.0 / (3.14159265358979323);
 
+	if (abs(model_angle - angle) <= 15) { return true; }
+	else return false;
+}
+
+void drawingLine(HDC dc, HPEN FeatureLinePen, HBRUSH FeatureLineBrush, HPEN FeatureLinePen_gap, HBRUSH FeatureLineBrush_gap, FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
+{
+
+	for (int i = 0; i < 58; i++) {
+		if (num_array[i] == 0) {
+				i++;
+				MoveToEx(dc, model_facialFeatures[num_array[i]].x, 16 + model_facialFeatures[num_array[i]].y, NULL);
+		}
+		else {
+			if (find_angle_each_parts(num_array[i], num_array[i - 1], facialFeatures, model_facialFeatures)) {
+				SelectObject(dc, FeatureLinePen);
+				SelectObject(dc, FeatureLineBrush);
+				LineTo(dc, model_facialFeatures[num_array[i]].x, 16 + model_facialFeatures[num_array[i]].y);
+			}
+			else {
+				SelectObject(dc, FeatureLinePen_gap);
+				SelectObject(dc, FeatureLineBrush_gap);
+				LineTo(dc, model_facialFeatures[num_array[i]].x, 16 + model_facialFeatures[num_array[i]].y);
+			}
+		}
+
+	}
+	/*
 	//左眉
-	MoveToEx(dc, facialFeatures[FSDKP_LEFT_EYEBROW_INNER_CORNER].x, 16+facialFeatures[FSDKP_LEFT_EYEBROW_INNER_CORNER].y, NULL);
-	LineTo(dc, facialFeatures[FSDKP_LEFT_EYEBROW_MIDDLE_RIGHT].x, 16+facialFeatures[FSDKP_LEFT_EYEBROW_MIDDLE_RIGHT].y);
-	LineTo(dc, facialFeatures[FSDKP_LEFT_EYEBROW_MIDDLE].x, 16+facialFeatures[FSDKP_LEFT_EYEBROW_MIDDLE].y);
-	LineTo(dc, facialFeatures[FSDKP_LEFT_EYEBROW_MIDDLE_LEFT].x, 16+facialFeatures[FSDKP_LEFT_EYEBROW_MIDDLE_LEFT].y);
-	LineTo(dc, facialFeatures[FSDKP_LEFT_EYEBROW_OUTER_CORNER].x, 16+facialFeatures[FSDKP_LEFT_EYEBROW_OUTER_CORNER].y);
+	MoveToEx(dc, facialFeatures[13].x, 16+facialFeatures[13].y, NULL);
+	LineTo(dc, facialFeatures[19].x, 16+facialFeatures[19].y);
+	LineTo(dc, facialFeatures[16].x, 16+facialFeatures[16].y);
+	LineTo(dc, facialFeatures[18].x, 16+facialFeatures[18].y);
+	LineTo(dc, facialFeatures[12].x, 16+facialFeatures[12].y);
 
 	//右眉
 	MoveToEx(dc, facialFeatures[14].x, 16 + facialFeatures[14].y, NULL);
@@ -157,11 +192,12 @@ void drawingLine(HDC dc, HPEN FeatureLinePen, HBRUSH FeatureLineBrush, FSDK_Feat
 	LineTo(dc, facialFeatures[55].x, 16 + facialFeatures[55].y);
 	LineTo(dc, facialFeatures[58].x, 16 + facialFeatures[58].y);
 	LineTo(dc, facialFeatures[3].x, 16 + facialFeatures[3].y);
+	*/
 
 }
 
 
-std::vector<double> Get_Angle(FSDK_Features facialFeatures){
+std::vector<double> Get_Angle(FSDK_Features facialFeatures) {
 	std::vector<double> rad;
 	//左眉
 	rad.push_back(atan2(facialFeatures[18].y - facialFeatures[12].y, facialFeatures[18].x - facialFeatures[12].x));
@@ -228,7 +264,7 @@ void show_AngleDifference(FSDK_Features facialFeatures, FSDK_Features model_faci
 	std::vector<double> model_rad = Get_Angle(model_facialFeatures);
 
 	for (int i = 0; i < rad.size(); i++) {
-		printf("%lf \n", model_rad[i]-rad[i]);
+		printf("%lf \n", model_rad[i] - rad[i]);
 	}
 	printf("-----------------------------------\n");
 }
@@ -362,7 +398,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	HPEN FeatureLinePen = CreatePen(PS_SOLID, 1, RGB(255, 0, 0));
 	HBRUSH FeatureLineBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
 
-	HPEN FeatureLinePen_model = CreatePen(PS_SOLID, 1, RGB(135,55, 215));
+	HPEN FeatureLinePen_model = CreatePen(PS_SOLID, 1, RGB(135, 55, 215));
 	HBRUSH FeatureLineBrush_model = (HBRUSH)GetStockObject(NULL_BRUSH);
 
 	HPEN FeatureCirclesPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 255));
@@ -375,7 +411,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	MSG msg = { 0 };
 	bool model_flag = false;
-	HImage sub_imageHandle;
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		HImage backupHandle;
@@ -383,7 +418,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		FSDK_Features facialFeatures;
 		FSDK_Features model_facialFeatures;
 		TFacePosition facePosition;
-		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle,TRUE)==FSDKE_OK) { // grab the current frame from the camera
+		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
 			long long faceCount = 0;
 			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
@@ -407,16 +442,22 @@ int _tmain(int argc, _TCHAR* argv[])
 				SelectObject(dc, FaceRectangleBrush);
 				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
 
-				drawingLine(dc, FeatureLinePen, FeatureLineBrush, facialFeatures);
-				if(model_flag){drawingLine(dc, FeatureLinePen_model, FeatureLineBrush_model, model_facialFeatures);}
+				//リアルタイムの線と点
+				//drawingLine(dc, FeatureLinePen, FeatureLineBrush, facialFeatures);
+				//SelectObject(dc, FeatureCirclesPen);
+				//SelectObject(dc, FeatureCirclesBrush);
+				//for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
+					//Ellipse(dc, model_facialFeatures[i].x - 2, 16 + model_facialFeatures[i].y - 2, model_facialFeatures[i].x + 2, 16 + model_facialFeatures[i].y + 2);
 
+
+				if (model_flag) { drawingLine(dc, FeatureLinePen_model, FeatureLineBrush_model, FeatureLinePen, FeatureLineBrush, facialFeatures, model_facialFeatures); }
 				SelectObject(dc, FeatureCirclesPen);
 				SelectObject(dc, FeatureCirclesBrush);
 				for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
-					Ellipse(dc, facialFeatures[i].x - 2, 16 + facialFeatures[i].y - 2, facialFeatures[i].x + 2, 16 + facialFeatures[i].y + 2);
+					Ellipse(dc, model_facialFeatures[i].x - 2, 16 + model_facialFeatures[i].y - 2, model_facialFeatures[i].x + 2, 16 + model_facialFeatures[i].y + 2);
 
 			}
-			FSDK_CopyImage(imageHandle , backupHandle);
+			FSDK_CopyImage(imageHandle, backupHandle);
 
 			DeleteObject(hbitmapHandle); // delete the HBITMAP object
 			FSDK_FreeImage(imageHandle);// delete the FSDK image handle
@@ -442,11 +483,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
-				if (make_model(hwnd, model_facialFeatures)){model_flag = true;}
+				if (make_model(hwnd, model_facialFeatures)) { model_flag = true; }
 			}
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_CONTROL)
 			{
-				if(model_flag){
+				if (model_flag) {
 					show_AngleDifference(facialFeatures, model_facialFeatures);
 					FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 				}
