@@ -465,7 +465,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 				if (model_flag) {
 					ReArrangement(facialFeatures, model_facialFeatures, mag_facialFeatures);
-					drawingLine(dc, FeatureLinePen_model, FeatureLineBrush_model, FeatureLinePen, FeatureLineBrush, facialFeatures, mag_facialFeatures);
+					drawingLine(dc, FeatureLinePen, FeatureLineBrush, FeatureLinePen_model, FeatureLineBrush_model, facialFeatures, mag_facialFeatures);
 				 }
 				SelectObject(dc, FeatureCirclesPen);
 				SelectObject(dc, FeatureCirclesBrush);
