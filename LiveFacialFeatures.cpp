@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "LuxandFaceSDK.h"
 #include <vector>
+#include <numeric>
 
 char facialFeaturesName[100][FSDK_FACIAL_FEATURE_COUNT] =
 {
@@ -80,13 +81,13 @@ char facialFeaturesName[100][FSDK_FACIAL_FEATURE_COUNT] =
 };
 
 int num_array[58] = { 0,13,19,16,18,12,//左眉
-					  0,14,20,17,21,15,//右眉
-					  0,24,36,28,35,23,37,27,38,24,//左目
-					  0,25,39,32,40,26,42,31,41,25,//右目
-					  0,45,50,52,//左ほうれい線
-					  0,46,51,53,//右ほうれい線
-					  0,3,56,54,57,4,62,61,60,3,63,64,65,4,59,55,58,3//口
-					};
+0,14,20,17,21,15,//右眉
+0,24,36,28,35,23,37,27,38,24,//左目
+0,25,39,32,40,26,42,31,41,25,//右目
+0,45,50,52,//左ほうれい線
+0,46,51,53,//右ほうれい線
+0,3,56,54,57,4,62,61,60,3,63,64,65,4,59,55,58,3//口
+};
 
 
 void SavefacialFeatures(FSDK_Features facialFeatures)
@@ -101,27 +102,27 @@ bool find_angle_each_parts(int i, int j, FSDK_Features facialFeatures, FSDK_Feat
 	double angle = atan2(facialFeatures[i].y - facialFeatures[j].y, facialFeatures[i].x - facialFeatures[j].x) * 180.0 / (3.14159265358979323);
 	double model_angle = atan2(model_facialFeatures[i].y - model_facialFeatures[j].y, model_facialFeatures[i].x - model_facialFeatures[j].x) * 180.0 / (3.14159265358979323);
 
-	if (abs(model_angle - angle) <= 15) { return true; }
+	if (abs(model_angle - angle) <= 13) { return true; }
 	else return false;
 }
 
-void drawingLine(HDC dc, HPEN FeatureLinePen, HBRUSH FeatureLineBrush, HPEN FeatureLinePen_gap, HBRUSH FeatureLineBrush_gap, FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
+void drawingLine(HDC dc, HPEN Pen, HBRUSH Brush, HPEN Pen_gap, HBRUSH Brush_gap, FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
 {
 
 	for (int i = 0; i < 58; i++) {
 		if (num_array[i] == 0) {
-				i++;
-				MoveToEx(dc, model_facialFeatures[num_array[i]].x, 16 + model_facialFeatures[num_array[i]].y, NULL);
+			i++;
+			MoveToEx(dc, model_facialFeatures[num_array[i]].x, 16 + model_facialFeatures[num_array[i]].y, NULL);
 		}
 		else {
 			if (find_angle_each_parts(num_array[i], num_array[i - 1], facialFeatures, model_facialFeatures)) {
-				SelectObject(dc, FeatureLinePen);
-				SelectObject(dc, FeatureLineBrush);
+				SelectObject(dc, Pen);
+				SelectObject(dc, Brush);
 				LineTo(dc, model_facialFeatures[num_array[i]].x, 16 + model_facialFeatures[num_array[i]].y);
 			}
 			else {
-				SelectObject(dc, FeatureLinePen_gap);
-				SelectObject(dc, FeatureLineBrush_gap);
+				SelectObject(dc, Pen_gap);
+				SelectObject(dc, Brush_gap);
 				LineTo(dc, model_facialFeatures[num_array[i]].x, 16 + model_facialFeatures[num_array[i]].y);
 			}
 		}
@@ -268,6 +269,79 @@ void show_AngleDifference(FSDK_Features facialFeatures, FSDK_Features model_faci
 	}
 	printf("-----------------------------------\n");
 }
+void AngleDifference(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, std::vector<int> &point)
+{
+	std::vector<double> rad = Get_Angle(facialFeatures);
+	std::vector<double> model_rad = Get_Angle(model_facialFeatures);
+	std::vector<double> rad_sa;
+
+	for (int i = 0; i < 36; i++)
+	{
+		rad_sa.push_back(abs(model_rad[i] - rad[i]));
+		if (i == 3 || i == 7 || i == 15 || i == 23 || i == 25 || i == 27 || i == 35) {
+			double angle = std::accumulate(rad_sa.begin(), rad_sa.end(), 0.0) / rad_sa.size();
+			rad_sa.clear(); 
+			if (0 <= angle && angle <= 3) { point.push_back(10); }
+			if (3 < angle && angle <= 6) { point.push_back(9); }
+			if (6 < angle && angle <= 9) { point.push_back(8); }
+			if (9 < angle && angle <= 12) { point.push_back(7); }
+			if (12 < angle && angle <= 15) { point.push_back(6); }
+			if (15 < angle && angle <= 18) { point.push_back(5); }
+			if (18 < angle && angle <= 21) { point.push_back(4); }
+			if (21 < angle && angle <= 24) { point.push_back(3); }
+			if (24 < angle && angle <= 27) { point.push_back(2); }
+			if (27 < angle && angle <= 30) { point.push_back(1); }
+			if (30 < angle) { point.push_back(0); }
+		}
+	}
+}
+
+
+void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, std::vector<int> &point)
+{
+	int live_sa = facialFeatures[2].y - facialFeatures[22].y;
+	int model_sa = model_facialFeatures[2].y - model_facialFeatures[22].y;
+	int sa = abs(live_sa - model_sa);
+
+	if (0 <= sa && sa <= 2) { point.push_back(15); }
+	if (2 < sa && sa <= 4) { point.push_back(14); }
+	if (4 < sa && sa <= 6) { point.push_back(13); }
+	if (6 < sa && sa <= 8) { point.push_back(12); }
+	if (8 < sa && sa <= 10) { point.push_back(11); }
+	if (10 < sa && sa <= 12) { point.push_back(10); }
+	if (12 < sa && sa <= 14) { point.push_back(9); }
+	if (14 < sa && sa <= 16) { point.push_back(8); }
+	if (16 < sa && sa <= 18) { point.push_back(7); }
+	if (18 < sa && sa <= 20) { point.push_back(6); }
+	if (20 < sa && sa <= 22) { point.push_back(5); }
+	if (22 < sa && sa <= 24) { point.push_back(4); }
+	if (24 < sa && sa <= 26) { point.push_back(3); }
+	if (26 < sa && sa <= 28) { point.push_back(2); }
+	if (28 < sa && sa <= 30) { point.push_back(1); }
+	if (30 < sa){ point.push_back(0); }
+	
+	/*
+	if (live_sa > model_sa) { printf("もっと上を向きましょう\n"); }
+	else if (live_sa == model_sa) { printf("その向きで合ってるよ\n"); }
+	else { printf("もっと下\n"); }
+	*/
+}
+
+void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
+{
+	std::vector<int> point;
+	int sum=0;
+	AngleDifference(facialFeatures, model_facialFeatures, point);
+	UpOrDown(facialFeatures, model_facialFeatures, point);
+
+	for (int i = 0; i < point.size(); i++)
+	{
+		sum += point[i];
+		printf("%d点\n", point[i]);
+	}
+	point.clear();
+	printf("総合：%d点", sum);
+}
 
 bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
 {
@@ -340,7 +414,7 @@ bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
 void ReArrangement(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, FSDK_Features &mag_facialFeatures) {
 	double magnification;
 	magnification = (double)(facialFeatures[67].x - facialFeatures[66].x) / (model_facialFeatures[67].x - model_facialFeatures[66].x);
-	int gap_x[FSDK_FACIAL_FEATURE_COUNT],gap_y[FSDK_FACIAL_FEATURE_COUNT];
+	int gap_x[FSDK_FACIAL_FEATURE_COUNT], gap_y[FSDK_FACIAL_FEATURE_COUNT];
 	for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
 	{
 		gap_x[i] = (model_facialFeatures[i].x - model_facialFeatures[2].x)*magnification;
@@ -407,11 +481,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
 	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
 
-	HPEN FeatureLinePen = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
+	HPEN FeatureLinePen = CreatePen(PS_SOLID, 1, RGB(204, 255, 255));
 	HBRUSH FeatureLineBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
 
-	HPEN FeatureLinePen_model = CreatePen(PS_SOLID, 3, RGB(0, 0, 255));
-	HBRUSH FeatureLineBrush_model = (HBRUSH)GetStockObject(NULL_BRUSH);
+	HPEN FeatureLinePen_true = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
+	HBRUSH FeatureLineBrush_true = (HBRUSH)GetStockObject(NULL_BRUSH);
+
+	HPEN FeatureLinePen_false = CreatePen(PS_SOLID, 3, RGB(0, 0, 255));
+	HBRUSH FeatureLineBrush_false = (HBRUSH)GetStockObject(NULL_BRUSH);
 
 	HPEN FeatureCirclesPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 	LOGBRUSH brush;
@@ -422,14 +499,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	SendMessage(hwnd, LB_ADDSTRING, 0, (LPARAM)(L"Press Esc to exit ..."));
 
 	MSG msg = { 0 };
+	FSDK_Features model_facialFeatures;
+	FSDK_Features mag_facialFeatures;//お手本の倍率変更版
 	bool model_flag = false;
+	if (make_model(hwnd, model_facialFeatures)) { model_flag = true; }
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		HImage backupHandle;
 		FSDK_CreateEmptyImage(&backupHandle);
 		FSDK_Features facialFeatures;
-		FSDK_Features model_facialFeatures;
-		FSDK_Features mag_facialFeatures;//お手本の倍率変更版
 		TFacePosition facePosition;
 		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
@@ -456,16 +534,16 @@ int _tmain(int argc, _TCHAR* argv[])
 				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
 
 				//リアルタイムの線と点
-				//drawingLine(dc, FeatureLinePen, FeatureLineBrush, facialFeatures);
-				//SelectObject(dc, FeatureCirclesPen);
-				//SelectObject(dc, FeatureCirclesBrush);
-				//for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
-					//Ellipse(dc, model_facialFeatures[i].x - 2, 16 + model_facialFeatures[i].y - 2, model_facialFeatures[i].x + 2, 16 + model_facialFeatures[i].y + 2);
+				drawingLine(dc, FeatureLinePen, FeatureLineBrush, FeatureLinePen, FeatureLineBrush, facialFeatures, facialFeatures);
+				SelectObject(dc, FeatureCirclesPen);
+				SelectObject(dc, FeatureCirclesBrush);
+				for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
+					Ellipse(dc, facialFeatures[i].x - 2, 16 + facialFeatures[i].y - 2, facialFeatures[i].x + 2, 16 + facialFeatures[i].y + 2);
 
 
 				if (model_flag) {
 					ReArrangement(facialFeatures, model_facialFeatures, mag_facialFeatures);
-					drawingLine(dc, FeatureLinePen, FeatureLineBrush, FeatureLinePen_model, FeatureLineBrush_model, facialFeatures, mag_facialFeatures);
+					drawingLine(dc, FeatureLinePen_true, FeatureLineBrush_true, FeatureLinePen_false, FeatureLineBrush_false, facialFeatures, mag_facialFeatures);
 					SelectObject(dc, FeatureCirclesPen);
 					SelectObject(dc, FeatureCirclesBrush);
 					for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
@@ -487,7 +565,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			DispatchMessage(&msg);
 			if (msg.message == WM_KEYDOWN && msg.wParam == VK_RETURN)
 			{
-				SavefacialFeatures(facialFeatures);
+				//SavefacialFeatures(facialFeatures);
+				GetPoint(facialFeatures, model_facialFeatures);
 				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
 
