@@ -353,7 +353,7 @@ void ReArrangement(FSDK_Features facialFeatures, FSDK_Features model_facialFeatu
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	if (FSDKE_OK != FSDK_ActivateLibrary("tmzQl5fZlwQDYjMHyIW4GCUbwj7fRdtsu5q+LN6JhXUi40jlPyyUGPEEtULkMnYNXfCAtoPGorAkNKQHk0cPZXfNj5QGPcsRy3gHLfU24HTlNYUbjceF7iJjk0O+p1S1Yv/jd0Jjoh+Z8iPyt+wPzYCyVWH30ZggBF6O5bjl+UY=")) {
+	if (FSDKE_OK != FSDK_ActivateLibrary("Dg6n6wKXVOM9GkxsLe9IjSK9gYKDlktk4WVynQrKUnSHT+xBl7JZw+Xjk3u0Aghru7HOJh80T2wZ/oXNbwFnnV5UAOFaisKdS4Ik0G/Jc48m0TYlkJRMRDkrAwQkZ+I2ivnb3VXI2Fyx5jloNqhtdk2h64rthIppm8vAoyEmnfY=")) {
 		MessageBox(0, L"Please run the License Key Wizard (Start - Luxand - FaceSDK - License Key Wizard)\n", L"Error activating FaceSDK", MB_ICONERROR | MB_OK);
 		exit(-1);
 	}
