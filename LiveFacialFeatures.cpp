@@ -250,12 +250,14 @@ std::vector<double> Get_Angle(FSDK_Features facialFeatures) {
 	rad.push_back(atan2(facialFeatures[59].y - facialFeatures[55].y, facialFeatures[59].x - facialFeatures[55].x));
 	rad.push_back(atan2(facialFeatures[4].y - facialFeatures[59].y, facialFeatures[4].x - facialFeatures[59].x));
 
+	
+	//角度表示
 	for (int i = 0; i < rad.size(); i++) {
 		rad[i] = rad[i] * 180.0 / (3.14159265358979323);
-		printf("%lf \n", rad[i]);
+		//printf("%lf \n", rad[i]);
 	}
-	printf("-----------------------------------\n");
-
+	//printf("-----------------------------------\n");
+	
 	return rad;
 }
 
@@ -324,12 +326,6 @@ void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	if (26 < sa && sa <= 28) { point.push_back(2); }
 	if (28 < sa && sa <= 30) { point.push_back(1); }
 	if (30 < sa){ point.push_back(0); }
-	
-	/*
-	if (live_sa > model_sa) { printf("もっと上を向きましょう\n"); }
-	else if (live_sa == model_sa) { printf("その向きで合ってるよ\n"); }
-	else { printf("もっと下\n"); }
-	*/
 }
 
 void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, std::vector<int> &point)
@@ -361,7 +357,7 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
 		printf("%d点\n", point[i]);
 	}
 	point.clear();
-	printf("総合：%d点", sum);
+	printf("総合：%d点\n", sum);
 }
 
 bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
@@ -445,6 +441,34 @@ void ReArrangement(FSDK_Features facialFeatures, FSDK_Features model_facialFeatu
 	}
 }
 
+void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, HPEN Pen, HBRUSH Brush)
+{
+	int live_sa = facialFeatures[2].y - facialFeatures[22].y;
+	int model_sa = model_facialFeatures[2].y - model_facialFeatures[22].y;
+
+	SelectObject(dc, Pen);
+	SelectObject(dc, Brush);
+
+	if (live_sa - model_sa > 3) {
+		//printf("もっと上を向きましょう\n"); 
+		MoveToEx(dc, 320, 50, NULL);
+		LineTo(dc, 320, 30);
+		LineTo(dc, 310, 40);
+		MoveToEx(dc, 320, 30, NULL);
+		LineTo(dc, 330, 40);
+	}
+	else if (model_sa - live_sa > 3) {
+		//printf("もっと下\n");
+
+		MoveToEx(dc, 320, 430, NULL);
+		LineTo(dc, 320, 450);
+		LineTo(dc, 310, 440);
+		MoveToEx(dc, 320, 450, NULL);
+		LineTo(dc, 330, 440);
+	} 
+	else {}//printf("その向きで合ってるよ\n"); }
+}
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -498,24 +522,37 @@ int _tmain(int argc, _TCHAR* argv[])
 	HDC dc = GetDC(hwnd);
 	SetWindowPos(hwnd, 0, 0, 0, 6 + width, 6 + 32 + (height), SWP_NOZORDER | SWP_NOMOVE);
 	ShowWindow(hwnd, SW_SHOW);
-
+	
+	//顔の周りの四角
 	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
 	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
-
+	
+	//リアルタイムの特徴
 	HPEN FeatureLinePen = CreatePen(PS_SOLID, 1, RGB(204, 255, 255));
 	HBRUSH FeatureLineBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
 
+	//正しい角度の線
 	HPEN FeatureLinePen_true = CreatePen(PS_SOLID, 3, RGB(255, 0, 0));
 	HBRUSH FeatureLineBrush_true = (HBRUSH)GetStockObject(NULL_BRUSH);
 
+	//ずれている角度の時の線
 	HPEN FeatureLinePen_false = CreatePen(PS_SOLID, 3, RGB(0, 0, 255));
 	HBRUSH FeatureLineBrush_false = (HBRUSH)GetStockObject(NULL_BRUSH);
+
+	//矢印の線
+	HPEN ArrowLinePen = CreatePen(PS_SOLID, 3, RGB(0, 255, 0));
+	HBRUSH ArrowLineBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
 
 	HPEN FeatureCirclesPen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 	LOGBRUSH brush;
 	brush.lbColor = RGB(255, 255, 255);
 	brush.lbStyle = BS_SOLID;
 	HBRUSH FeatureCirclesBrush = CreateBrushIndirect(&brush);
+
+	HPEN FeatureCirclesPen_model = CreatePen(PS_SOLID, 1, RGB(150, 255, 255));
+	brush.lbColor = RGB(150, 255, 255);
+	brush.lbStyle = BS_SOLID;
+	HBRUSH FeatureCirclesBrush_model = CreateBrushIndirect(&brush);
 
 	SendMessage(hwnd, LB_ADDSTRING, 0, (LPARAM)(L"Press Esc to exit ..."));
 
@@ -565,10 +602,11 @@ int _tmain(int argc, _TCHAR* argv[])
 				if (model_flag) {
 					ReArrangement(facialFeatures, model_facialFeatures, mag_facialFeatures);
 					drawingLine(dc, FeatureLinePen_true, FeatureLineBrush_true, FeatureLinePen_false, FeatureLineBrush_false, facialFeatures, mag_facialFeatures);
-					SelectObject(dc, FeatureCirclesPen);
-					SelectObject(dc, FeatureCirclesBrush);
+					SelectObject(dc, FeatureCirclesPen_model);
+					SelectObject(dc, FeatureCirclesBrush_model);
 					for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
 						Ellipse(dc, mag_facialFeatures[i].x - 2, 16 + mag_facialFeatures[i].y - 2, mag_facialFeatures[i].x + 2, 16 + mag_facialFeatures[i].y + 2);
+					ShowTheArrow(dc, facialFeatures, model_facialFeatures, ArrowLinePen, ArrowLineBrush);
 				}
 
 
