@@ -301,9 +301,14 @@ void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 {
 	int live_sa = facialFeatures[2].y - facialFeatures[22].y;
 	int model_sa = model_facialFeatures[2].y - model_facialFeatures[22].y;
-	int sa = abs(live_sa - model_sa);
+	int sa = (30-abs(live_sa - model_sa))/2;
 
-	if (0 <= sa && sa <= 2) { point.push_back(15); }
+	if (sa > 0) {
+		point.push_back(sa);//Ç±Ç§ÇµÇΩï˚Ç™íZÇ≠Ç»Ç¢ÅH
+	}else if(sa <= 0){
+		point.push_back(0);
+	}
+	/*if (0 <= sa && sa <= 2) { point.push_back(15); }
 	if (2 < sa && sa <= 4) { point.push_back(14); }
 	if (4 < sa && sa <= 6) { point.push_back(13); }
 	if (6 < sa && sa <= 8) { point.push_back(12); }
@@ -327,12 +332,28 @@ void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	*/
 }
 
+void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, std::vector<int> &point)
+{
+	int live_right = facialFeatures[69].x - facialFeatures[2].x;
+	int live_left = facialFeatures[2].x - facialFeatures[68].x;
+	int model_right = model_facialFeatures[69].x - model_facialFeatures[2].x;
+	int model_left = model_facialFeatures[2].x - model_facialFeatures[68].x;
+	double Slope= abs(1-((double)live_right - live_left)/(model_right - model_left));
+	double SlopePoint = (1.5 - Slope) *10;
+	if (SlopePoint > 0){
+		point.push_back((int)SlopePoint);
+	}else if(1.5-Slope <= 0){
+		point.push_back(0);
+	}
+}
+
 void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
 {
 	std::vector<int> point;
 	int sum=0;
 	AngleDifference(facialFeatures, model_facialFeatures, point);
 	UpOrDown(facialFeatures, model_facialFeatures, point);
+	//RightorLeft(facialFeatures, model_facialFeatures, point);
 
 	for (int i = 0; i < point.size(); i++)
 	{
