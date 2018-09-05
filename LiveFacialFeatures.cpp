@@ -269,7 +269,7 @@ void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeature
 	int live_left = facialFeatures[2].x - facialFeatures[68].x;
 	int model_right = model_facialFeatures[69].x - model_facialFeatures[2].x;
 	int model_left = model_facialFeatures[2].x - model_facialFeatures[68].x;
-	double Slope= abs(((double)live_right/live_left)-((double)model_right/model_left));
+	double Slope= abs(1-((double)live_right - live_left)/(model_right - model_left));
 	double SlopePoint = (1.5 - Slope) *10;
 	if (SlopePoint > 0){
 		point.push_back((int)SlopePoint);
@@ -278,12 +278,12 @@ void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeature
 	}
 }
 
-void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
+void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, FSDK_Features mag_facialFeatures)
 {
 	std::vector<int> point;
 	int sum=0;
 	AngleDifference(facialFeatures, model_facialFeatures, point);
-	UpOrDown(facialFeatures, model_facialFeatures, point);
+	UpOrDown(facialFeatures, mag_facialFeatures, point);
 	RightorLeft(facialFeatures, model_facialFeatures, point);
 
 	for (int i = 0; i < point.size(); i++)
@@ -560,7 +560,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			if (msg.message == WM_KEYDOWN && msg.wParam == VK_RETURN)
 			{
 				//SavefacialFeatures(facialFeatures);
-				GetPoint(facialFeatures, model_facialFeatures);
+				GetPoint(facialFeatures, model_facialFeatures, mag_facialFeatures);
 				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
 
