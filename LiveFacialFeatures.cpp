@@ -216,17 +216,17 @@ void AngleDifference(FSDK_Features facialFeatures, FSDK_Features model_facialFea
 		if (i == 3 || i == 7 || i == 15 || i == 23 || i == 25 || i == 27 || i == 35) {
 			double angle = std::accumulate(rad_sa.begin(), rad_sa.end(), 0.0) / rad_sa.size();
 			rad_sa.clear(); 
-			if (0 <= angle && angle <= 3) { point.push_back(10); }
-			if (3 < angle && angle <= 6) { point.push_back(9); }
-			if (6 < angle && angle <= 9) { point.push_back(8); }
-			if (9 < angle && angle <= 12) { point.push_back(7); }
-			if (12 < angle && angle <= 15) { point.push_back(6); }
-			if (15 < angle && angle <= 18) { point.push_back(5); }
-			if (18 < angle && angle <= 21) { point.push_back(4); }
-			if (21 < angle && angle <= 24) { point.push_back(3); }
-			if (24 < angle && angle <= 27) { point.push_back(2); }
-			if (27 < angle && angle <= 30) { point.push_back(1); }
-			if (30 < angle) { point.push_back(0); }
+			if (0 <= angle && angle <= 2) { point.push_back(10); }
+			if (2 < angle && angle <= 4) { point.push_back(9); }
+			if (4 < angle && angle <= 6) { point.push_back(8); }
+			if (6 < angle && angle <= 8) { point.push_back(7); }
+			if (8 < angle && angle <= 10) { point.push_back(6); }
+			if (10 < angle && angle <= 12) { point.push_back(5); }
+			if (12 < angle && angle <= 14) { point.push_back(4); }
+			if (14 < angle && angle <= 16) { point.push_back(3); }
+			if (16 < angle && angle <= 18) { point.push_back(2); }
+			if (18 < angle && angle <= 20) { point.push_back(1); }
+			if (20 < angle) { point.push_back(0); }
 		}
 	}
 }
@@ -269,13 +269,16 @@ void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeature
 	int live_left = facialFeatures[2].x - facialFeatures[68].x;
 	int model_right = model_facialFeatures[69].x - model_facialFeatures[2].x;
 	int model_left = model_facialFeatures[2].x - model_facialFeatures[68].x;
-	double Slope= abs(1-((double)live_right - live_left)/(model_right - model_left));
+	double model = (double)model_right / model_left;
+	double live = (double)live_right / live_left;
+	double Slope = abs(model - live);
 	double SlopePoint = (1.5 - Slope) *10;
 	if (SlopePoint > 0){
 		point.push_back((int)SlopePoint);
 	}else if(1.5-Slope <= 0){
 		point.push_back(0);
 	}
+
 }
 
 void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, FSDK_Features mag_facialFeatures)
@@ -380,6 +383,12 @@ void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_faci
 {
 	int live_sa = facialFeatures[2].y - facialFeatures[22].y;
 	int model_sa = model_facialFeatures[2].y - model_facialFeatures[22].y;
+	int live_right = facialFeatures[69].x - facialFeatures[2].x;
+	int live_left = facialFeatures[2].x - facialFeatures[68].x;
+	int model_right = model_facialFeatures[69].x - model_facialFeatures[2].x;
+	int model_left = model_facialFeatures[2].x - model_facialFeatures[68].x;
+	double model = (double)model_right / model_left;
+	double live = (double)live_right / live_left;
 
 	SelectObject(dc, Pen);
 	SelectObject(dc, Brush);
@@ -402,6 +411,21 @@ void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_faci
 		LineTo(dc, 330, 440);
 	} 
 	else {}//printf("‚»‚ÌŒü‚«‚Å‡‚Á‚Ä‚é‚æ\n"); }
+
+	if (model - live < 0.5) {
+		MoveToEx(dc, 600, 190, NULL);
+		LineTo(dc, 620, 190);
+		LineTo(dc, 610, 180);
+		MoveToEx(dc, 620, 190, NULL);
+		LineTo(dc, 610, 200);
+	}
+	else if (live - model < 0.5) {
+		MoveToEx(dc, 40, 190, NULL);
+		LineTo(dc, 20, 190);
+		LineTo(dc, 30, 180);
+		MoveToEx(dc, 20, 190, NULL);
+		LineTo(dc, 30, 200);
+	}
 }
 
 
