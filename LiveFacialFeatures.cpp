@@ -236,7 +236,7 @@ void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 {
 	int live_sa = facialFeatures[2].y - facialFeatures[22].y;
 	int model_sa = model_facialFeatures[2].y - model_facialFeatures[22].y;
-	int sa = (30-abs(live_sa - model_sa))/2;
+	int sa = abs(live_sa - model_sa);
 
 /*	if (sa > 0) {
 		point.push_back(sa);//‚±‚¤‚µ‚½•û‚ª’Z‚­‚È‚¢H
@@ -269,7 +269,7 @@ void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeature
 	int live_left = facialFeatures[2].x - facialFeatures[68].x;
 	int model_right = model_facialFeatures[69].x - model_facialFeatures[2].x;
 	int model_left = model_facialFeatures[2].x - model_facialFeatures[68].x;
-	double Slope= abs(1-((double)live_right - live_left)/(model_right - model_left));
+	double Slope= abs(((double)live_right/live_left)-((double)model_right/model_left));
 	double SlopePoint = (1.5 - Slope) *10;
 	if (SlopePoint > 0){
 		point.push_back((int)SlopePoint);
