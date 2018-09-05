@@ -128,73 +128,6 @@ void drawingLine(HDC dc, HPEN Pen, HBRUSH Brush, HPEN Pen_gap, HBRUSH Brush_gap,
 		}
 
 	}
-	/*
-	//左眉
-	MoveToEx(dc, facialFeatures[13].x, 16+facialFeatures[13].y, NULL);
-	LineTo(dc, facialFeatures[19].x, 16+facialFeatures[19].y);
-	LineTo(dc, facialFeatures[16].x, 16+facialFeatures[16].y);
-	LineTo(dc, facialFeatures[18].x, 16+facialFeatures[18].y);
-	LineTo(dc, facialFeatures[12].x, 16+facialFeatures[12].y);
-
-	//右眉
-	MoveToEx(dc, facialFeatures[14].x, 16 + facialFeatures[14].y, NULL);
-	LineTo(dc, facialFeatures[20].x, 16 + facialFeatures[20].y);
-	LineTo(dc, facialFeatures[17].x, 16 + facialFeatures[17].y);
-	LineTo(dc, facialFeatures[21].x, 16 + facialFeatures[21].y);
-	LineTo(dc, facialFeatures[15].x, 16 + facialFeatures[15].y);
-
-	//左目
-	MoveToEx(dc, facialFeatures[24].x, 16 + facialFeatures[24].y, NULL);
-	LineTo(dc, facialFeatures[36].x, 16 + facialFeatures[36].y);
-	LineTo(dc, facialFeatures[28].x, 16 + facialFeatures[28].y);
-	LineTo(dc, facialFeatures[35].x, 16 + facialFeatures[35].y);
-	LineTo(dc, facialFeatures[23].x, 16 + facialFeatures[23].y);
-	LineTo(dc, facialFeatures[37].x, 16 + facialFeatures[37].y);
-	LineTo(dc, facialFeatures[27].x, 16 + facialFeatures[27].y);
-	LineTo(dc, facialFeatures[38].x, 16 + facialFeatures[38].y);
-	LineTo(dc, facialFeatures[24].x, 16 + facialFeatures[24].y);
-
-	//右目
-	MoveToEx(dc, facialFeatures[25].x, 16 + facialFeatures[25].y, NULL);
-	LineTo(dc, facialFeatures[39].x, 16 + facialFeatures[39].y);
-	LineTo(dc, facialFeatures[32].x, 16 + facialFeatures[32].y);
-	LineTo(dc, facialFeatures[40].x, 16 + facialFeatures[40].y);
-	LineTo(dc, facialFeatures[26].x, 16 + facialFeatures[26].y);
-	LineTo(dc, facialFeatures[42].x, 16 + facialFeatures[42].y);
-	LineTo(dc, facialFeatures[31].x, 16 + facialFeatures[31].y);
-	LineTo(dc, facialFeatures[41].x, 16 + facialFeatures[41].y);
-	LineTo(dc, facialFeatures[25].x, 16 + facialFeatures[25].y);
-
-	//左ほうれい線
-	MoveToEx(dc, facialFeatures[45].x, 16 + facialFeatures[45].y, NULL);
-	LineTo(dc, facialFeatures[50].x, 16 + facialFeatures[50].y);
-	LineTo(dc, facialFeatures[52].x, 16 + facialFeatures[52].y);
-
-	//右ほうれい線
-	MoveToEx(dc, facialFeatures[46].x, 16 + facialFeatures[46].y, NULL);
-	LineTo(dc, facialFeatures[51].x, 16 + facialFeatures[51].y);
-	LineTo(dc, facialFeatures[53].x, 16 + facialFeatures[53].y);
-
-	//口
-	MoveToEx(dc, facialFeatures[3].x, 16 + facialFeatures[3].y, NULL);
-	LineTo(dc, facialFeatures[56].x, 16 + facialFeatures[56].y);
-	LineTo(dc, facialFeatures[54].x, 16 + facialFeatures[54].y);
-	LineTo(dc, facialFeatures[57].x, 16 + facialFeatures[57].y);
-	LineTo(dc, facialFeatures[4].x, 16 + facialFeatures[4].y);
-	LineTo(dc, facialFeatures[62].x, 16 + facialFeatures[62].y);
-	LineTo(dc, facialFeatures[61].x, 16 + facialFeatures[61].y);
-	LineTo(dc, facialFeatures[60].x, 16 + facialFeatures[60].y);
-	LineTo(dc, facialFeatures[3].x, 16 + facialFeatures[3].y);
-	LineTo(dc, facialFeatures[63].x, 16 + facialFeatures[63].y);
-	LineTo(dc, facialFeatures[64].x, 16 + facialFeatures[64].y);
-	LineTo(dc, facialFeatures[65].x, 16 + facialFeatures[65].y);
-	LineTo(dc, facialFeatures[4].x, 16 + facialFeatures[4].y);
-	LineTo(dc, facialFeatures[59].x, 16 + facialFeatures[59].y);
-	LineTo(dc, facialFeatures[55].x, 16 + facialFeatures[55].y);
-	LineTo(dc, facialFeatures[58].x, 16 + facialFeatures[58].y);
-	LineTo(dc, facialFeatures[3].x, 16 + facialFeatures[3].y);
-	*/
-
 }
 
 
@@ -305,12 +238,13 @@ void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	int model_sa = model_facialFeatures[2].y - model_facialFeatures[22].y;
 	int sa = (30-abs(live_sa - model_sa))/2;
 
-	if (sa > 0) {
+/*	if (sa > 0) {
 		point.push_back(sa);//こうした方が短くない？
 	}else if(sa <= 0){
 		point.push_back(0);
 	}
-	/*if (0 <= sa && sa <= 2) { point.push_back(15); }
+*/
+	if (0 <= sa && sa <= 2) { point.push_back(15); }
 	if (2 < sa && sa <= 4) { point.push_back(14); }
 	if (4 < sa && sa <= 6) { point.push_back(13); }
 	if (6 < sa && sa <= 8) { point.push_back(12); }
@@ -326,6 +260,7 @@ void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	if (26 < sa && sa <= 28) { point.push_back(2); }
 	if (28 < sa && sa <= 30) { point.push_back(1); }
 	if (30 < sa){ point.push_back(0); }
+	
 }
 
 void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, std::vector<int> &point)
@@ -349,7 +284,7 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures)
 	int sum=0;
 	AngleDifference(facialFeatures, model_facialFeatures, point);
 	UpOrDown(facialFeatures, model_facialFeatures, point);
-	//RightorLeft(facialFeatures, model_facialFeatures, point);
+	RightorLeft(facialFeatures, model_facialFeatures, point);
 
 	for (int i = 0; i < point.size(); i++)
 	{
