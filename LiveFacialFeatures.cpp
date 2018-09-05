@@ -411,18 +411,18 @@ void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_faci
 	else {}//printf("‚»‚ÌŒü‚«‚Å‡‚Á‚Ä‚é‚æ\n"); }
 
 	if (model - live < 0.5) {
-		MoveToEx(dc, 600, 190, NULL);
-		LineTo(dc, 620, 190);
-		LineTo(dc, 610, 180);
-		MoveToEx(dc, 620, 190, NULL);
-		LineTo(dc, 610, 200);
+		MoveToEx(dc, 600, 190+30, NULL);
+		LineTo(dc, 620, 190+30);
+		LineTo(dc, 610, 180+30);
+		MoveToEx(dc, 620, 190+30, NULL);
+		LineTo(dc, 610, 200+30);
 	}
 	else if (live - model < 0.5) {
-		MoveToEx(dc, 40, 190, NULL);
-		LineTo(dc, 20, 190);
-		LineTo(dc, 30, 180);
-		MoveToEx(dc, 20, 190, NULL);
-		LineTo(dc, 30, 200);
+		MoveToEx(dc, 40, 190+30, NULL);
+		LineTo(dc, 20, 190+30);
+		LineTo(dc, 30, 180+30);
+		MoveToEx(dc, 20, 190+30, NULL);
+		LineTo(dc, 30, 200+30);
 	}
 }
 
@@ -583,7 +583,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 				//SavefacialFeatures(facialFeatures);
 				GetPoint(facialFeatures, model_facialFeatures, mag_facialFeatures);
-				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
+				//FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
 
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
