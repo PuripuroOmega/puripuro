@@ -287,13 +287,26 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	UpOrDown(facialFeatures, mag_facialFeatures, point);
 	RightorLeft(facialFeatures, model_facialFeatures, point);
 
+	
 	for (int i = 0; i < point.size(); i++)
 	{
 		sum += point[i];
-		printf("%d点\n", point[i]);
+		//printf("%d点\n", point[i]);
 	}
+	
+
+	printf("左眉　　　　：%d点\n", point[0]);
+	printf("右眉　　　　：%d点\n", point[1]);
+	printf("左目　　　　：%d点\n", point[2]);
+	printf("右目　　　　：%d点\n", point[3]);
+	printf("左ほうれい線：%d点\n", point[4]);
+	printf("右ほうれい線：%d点\n", point[5]);
+	printf("口　　　　　：%d点\n", point[6]);
+	printf("顔の上下　　：%d点\n", point[7]);
+	printf("顔の左右　　：%d点\n", point[8]);
 	point.clear();
-	printf("総合：%d点\n", sum);
+	printf("総合　　　　：%d点\n", sum);
+	printf("------------------------------\n");
 }
 
 bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
