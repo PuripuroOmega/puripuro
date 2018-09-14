@@ -183,14 +183,14 @@ std::vector<double> Get_Angle(FSDK_Features facialFeatures) {
 	rad.push_back(atan2(facialFeatures[59].y - facialFeatures[55].y, facialFeatures[59].x - facialFeatures[55].x));
 	rad.push_back(atan2(facialFeatures[4].y - facialFeatures[59].y, facialFeatures[4].x - facialFeatures[59].x));
 
-	
+
 	//角度表示
 	for (int i = 0; i < rad.size(); i++) {
 		rad[i] = rad[i] * 180.0 / (3.14159265358979323);
 		//printf("%lf \n", rad[i]);
 	}
 	//printf("-----------------------------------\n");
-	
+
 	return rad;
 }
 
@@ -215,7 +215,7 @@ void AngleDifference(FSDK_Features facialFeatures, FSDK_Features model_facialFea
 		rad_sa.push_back(abs(model_rad[i] - rad[i]));
 		if (i == 3 || i == 7 || i == 15 || i == 23 || i == 25 || i == 27 || i == 35) {
 			double angle = std::accumulate(rad_sa.begin(), rad_sa.end(), 0.0) / rad_sa.size();
-			rad_sa.clear(); 
+			rad_sa.clear();
 			if (0 <= angle && angle <= 2) { point.push_back(10); }
 			if (2 < angle && angle <= 4) { point.push_back(9); }
 			if (4 < angle && angle <= 6) { point.push_back(8); }
@@ -238,12 +238,12 @@ void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	int model_sa = model_facialFeatures[2].y - model_facialFeatures[22].y;
 	int sa = abs(live_sa - model_sa);
 
-/*	if (sa > 0) {
-		point.push_back(sa);//こうした方が短くない？
+	/*	if (sa > 0) {
+	point.push_back(sa);//こうした方が短くない？
 	}else if(sa <= 0){
-		point.push_back(0);
+	point.push_back(0);
 	}
-*/
+	*/
 	if (0 <= sa && sa <= 2) { point.push_back(15); }
 	if (2 < sa && sa <= 4) { point.push_back(14); }
 	if (4 < sa && sa <= 6) { point.push_back(13); }
@@ -259,8 +259,8 @@ void UpOrDown(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	if (24 < sa && sa <= 26) { point.push_back(3); }
 	if (26 < sa && sa <= 28) { point.push_back(2); }
 	if (28 < sa && sa <= 30) { point.push_back(1); }
-	if (30 < sa){ point.push_back(0); }
-	
+	if (30 < sa) { point.push_back(0); }
+
 }
 
 void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, std::vector<int> &point)
@@ -269,11 +269,12 @@ void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeature
 	int live_left = facialFeatures[2].x - facialFeatures[68].x;
 	int model_right = model_facialFeatures[69].x - model_facialFeatures[2].x;
 	int model_left = model_facialFeatures[2].x - model_facialFeatures[68].x;
-	double Slope= abs(((double)live_right/live_left)-((double)model_right/model_left));
-	double SlopePoint = (1.5 - Slope) *10;
-	if (SlopePoint > 0){
+	double Slope = abs(((double)live_right / live_left) - ((double)model_right / model_left));
+	double SlopePoint = (1.5 - Slope) * 10;
+	if (SlopePoint > 0) {
 		point.push_back((int)SlopePoint);
-	}else if(1.5-Slope <= 0){
+	}
+	else if (1.5 - Slope <= 0) {
 		point.push_back(0);
 	}
 
@@ -282,18 +283,18 @@ void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeature
 void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, FSDK_Features mag_facialFeatures)
 {
 	std::vector<int> point;
-	int sum=0;
+	int sum = 0;
 	AngleDifference(facialFeatures, model_facialFeatures, point);
 	UpOrDown(facialFeatures, mag_facialFeatures, point);
 	RightorLeft(facialFeatures, model_facialFeatures, point);
 
-	
+
 	for (int i = 0; i < point.size(); i++)
 	{
 		sum += point[i];
 		//printf("%d点\n", point[i]);
 	}
-	
+
 
 	printf("左眉　　　　：%d点\n", point[0]);
 	printf("右眉　　　　：%d点\n", point[1]);
@@ -420,22 +421,22 @@ void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_faci
 		LineTo(dc, 310, 440);
 		MoveToEx(dc, 320, 450, NULL);
 		LineTo(dc, 330, 440);
-	} 
+	}
 	else {}//printf("その向きで合ってるよ\n"); }
 
 	if (model - live < 0) {
-		MoveToEx(dc, 600, 190+30, NULL);
-		LineTo(dc, 620, 190+30);
-		LineTo(dc, 610, 180+30);
-		MoveToEx(dc, 620, 190+30, NULL);
-		LineTo(dc, 610, 200+30);
+		MoveToEx(dc, 600, 190 + 30, NULL);
+		LineTo(dc, 620, 190 + 30);
+		LineTo(dc, 610, 180 + 30);
+		MoveToEx(dc, 620, 190 + 30, NULL);
+		LineTo(dc, 610, 200 + 30);
 	}
 	else if (model - live > 0) {
-		MoveToEx(dc, 40, 190+30, NULL);
-		LineTo(dc, 20, 190+30);
-		LineTo(dc, 30, 180+30);
-		MoveToEx(dc, 20, 190+30, NULL);
-		LineTo(dc, 30, 200+30);
+		MoveToEx(dc, 40, 190 + 30, NULL);
+		LineTo(dc, 20, 190 + 30);
+		LineTo(dc, 30, 180 + 30);
+		MoveToEx(dc, 20, 190 + 30, NULL);
+		LineTo(dc, 30, 200 + 30);
 	}
 }
 
@@ -492,11 +493,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	HDC dc = GetDC(hwnd);
 	SetWindowPos(hwnd, 0, 0, 0, 6 + width, 6 + 32 + (height), SWP_NOZORDER | SWP_NOMOVE);
 	ShowWindow(hwnd, SW_SHOW);
-	
+
 	//顔の周りの四角
 	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
 	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
-	
+
 	//リアルタイムの特徴
 	HPEN FeatureLinePen = CreatePen(PS_SOLID, 1, RGB(204, 255, 255));
 	HBRUSH FeatureLineBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
@@ -534,10 +535,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		HImage backupHandle;
-		FSDK_CreateEmptyImage(&backupHandle);
+
 		FSDK_Features facialFeatures;
 		TFacePosition facePosition;
-		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
+		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK  && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
 			long long faceCount = 0;
 			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
@@ -581,7 +582,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 			}
-			FSDK_CopyImage(imageHandle, backupHandle);
 
 			DeleteObject(hbitmapHandle); // delete the HBITMAP object
 			FSDK_FreeImage(imageHandle);// delete the FSDK image handle
@@ -602,6 +602,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
 			{
 				Get_Angle(facialFeatures);
+				FSDK_GrabFrame(cameraHandle, &backupHandle);
+				FSDK_MirrorImage(backupHandle, TRUE);
 				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
 
