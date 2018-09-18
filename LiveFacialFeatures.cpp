@@ -310,7 +310,7 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	printf("------------------------------\n");
 }
 
-bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
+bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures,HImage &modelImageHandle)
 {
 	TFacePosition facePosition;
 	HImage ResizedImageHandle;
@@ -322,7 +322,6 @@ bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
 	RECT ClientRect;
 	GetClientRect(hwnd, &ClientRect);
 
-	HImage imageHandle;
 	OPENFILENAMEA oFile;
 	char szPath[MAX_PATH];
 	char szDir[MAX_PATH];
@@ -338,24 +337,26 @@ bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures)
 	oFile.lpstrInitialDir = szDir;
 	oFile.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 	oFile.lpstrDefExt = NULL;
-	if (GetOpenFileNameA(&oFile) && FSDKE_OK == FSDK_LoadImageFromFile(&imageHandle, oFile.lpstrFile))
+	if (GetOpenFileNameA(&oFile) && FSDKE_OK == FSDK_LoadImageFromFile(&modelImageHandle, oFile.lpstrFile))
 	{
-		FaceDetected = FSDK_DetectFace(imageHandle, &facePosition);
+		FaceDetected = FSDK_DetectFace(modelImageHandle, &facePosition);
 		if (FaceDetected == FSDKE_OK)
-			FSDK_DetectFacialFeaturesInRegion(imageHandle, &facePosition, &model_facialFeatures);
+			FSDK_DetectFacialFeaturesInRegion(modelImageHandle, &facePosition, &model_facialFeatures);
 
-		FSDK_GetImageWidth(imageHandle, &width);
-		FSDK_GetImageHeight(imageHandle, &height);
+		FSDK_GetImageWidth(modelImageHandle, &width);
+		FSDK_GetImageHeight(modelImageHandle, &height);
 		double resizeCoefficient = min(ClientRect.right / (double)width, (ClientRect.bottom - 16) / (double)height);
 
 		FSDK_FreeImage(ResizedImageHandle);
 		FSDK_CreateEmptyImage(&ResizedImageHandle);
-		FSDK_ResizeImage(imageHandle, resizeCoefficient, ResizedImageHandle);
+		FSDK_ResizeImage(modelImageHandle, resizeCoefficient, ResizedImageHandle);
 
 		FSDK_GetImageWidth(ResizedImageHandle, &width);
 		FSDK_GetImageHeight(ResizedImageHandle, &height);
 
-		FSDK_FreeImage(imageHandle);// delete the FSDK image handle
+
+
+		//FSDK_FreeImage(imageHandle);// delete the FSDK image handle
 
 		if (FaceDetected == FSDKE_OK)
 		{
@@ -494,6 +495,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	SetWindowPos(hwnd, 0, 0, 0, 6 + width, 6 + 32 + (height), SWP_NOZORDER | SWP_NOMOVE);
 	ShowWindow(hwnd, SW_SHOW);
 
+	HWND hwnd2 = CreateWindowEx(WS_EX_TOOLWINDOW, L"LISTBOX", L"LiveFacialFeatures2", 0, 650, 0, 0, 0, 0, 0, 0, 0);
+	HDC dc2 = GetDC(hwnd2);
+	SetWindowPos(hwnd2, 0, 0, 0, 6 + width, 6 + 32 + (height), SWP_NOZORDER | SWP_NOMOVE);
+	ShowWindow(hwnd2, SW_SHOW);
+
 	//顔の周りの四角
 	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
 	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
@@ -531,7 +537,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	FSDK_Features model_facialFeatures;
 	FSDK_Features mag_facialFeatures;//お手本の倍率変更版
 	bool model_flag = false;
-	if (make_model(hwnd, model_facialFeatures)) { model_flag = true; }
+	HImage modelImageHandle;
+	if (make_model(hwnd, model_facialFeatures, modelImageHandle)) { model_flag = true; }
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		HImage backupHandle;
@@ -544,9 +551,15 @@ int _tmain(int argc, _TCHAR* argv[])
 			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
 
 			HBITMAP hbitmapHandle; // to store the HBITMAP handle
+			HBITMAP hbitmapHandle2;
 			FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
+			FSDK_SaveImageToHBitmap(modelImageHandle, &hbitmapHandle2);
+
 
 			DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
+			DrawState(dc2, NULL, NULL, (LPARAM)hbitmapHandle2, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
+
+
 
 			for (int i = 0; i < faceCount; i++) {
 
@@ -562,15 +575,15 @@ int _tmain(int argc, _TCHAR* argv[])
 				SelectObject(dc, FaceRectangleBrush);
 				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
 
-				//リアルタイムの線と点
-				drawingLine(dc, FeatureLinePen, FeatureLineBrush, FeatureLinePen, FeatureLineBrush, facialFeatures, facialFeatures);
-				SelectObject(dc, FeatureCirclesPen);
-				SelectObject(dc, FeatureCirclesBrush);
-				for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
-					Ellipse(dc, facialFeatures[i].x - 2, 16 + facialFeatures[i].y - 2, facialFeatures[i].x + 2, 16 + facialFeatures[i].y + 2);
-
 
 				if (model_flag) {
+					//リアルタイムの線と点
+					drawingLine(dc, FeatureLinePen, FeatureLineBrush, FeatureLinePen, FeatureLineBrush, facialFeatures, facialFeatures);
+					SelectObject(dc, FeatureCirclesPen);
+					SelectObject(dc, FeatureCirclesBrush);
+					for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
+						Ellipse(dc, facialFeatures[i].x - 2, 16 + facialFeatures[i].y - 2, facialFeatures[i].x + 2, 16 + facialFeatures[i].y + 2);
+
 					ReArrangement(facialFeatures, model_facialFeatures, mag_facialFeatures);
 					drawingLine(dc, FeatureLinePen_true, FeatureLineBrush_true, FeatureLinePen_false, FeatureLineBrush_false, facialFeatures, mag_facialFeatures);
 					SelectObject(dc, FeatureCirclesPen_model);
@@ -606,11 +619,10 @@ int _tmain(int argc, _TCHAR* argv[])
 				FSDK_MirrorImage(backupHandle, TRUE);
 				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
-
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
-				if (make_model(hwnd, model_facialFeatures)) { model_flag = true; }
+				if (make_model(hwnd, model_facialFeatures, modelImageHandle)) { model_flag = true; }
 			}
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_CONTROL)
 			{
@@ -619,6 +631,10 @@ int _tmain(int argc, _TCHAR* argv[])
 					ReArrangement(facialFeatures, model_facialFeatures, mag_facialFeatures);
 					FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 				}
+			}
+			else if (msg.message == WM_KEYDOWN && msg.wParam == 0x4C)
+			{
+				model_flag = 1 - model_flag;
 			}
 
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
