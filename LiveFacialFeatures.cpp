@@ -354,7 +354,7 @@ bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures,HImage &modelImag
 		FSDK_GetImageWidth(ResizedImageHandle, &width);
 		FSDK_GetImageHeight(ResizedImageHandle, &height);
 
-
+		FSDK_CopyImage(ResizedImageHandle, modelImageHandle);
 
 		//FSDK_FreeImage(imageHandle);// delete the FSDK image handle
 
