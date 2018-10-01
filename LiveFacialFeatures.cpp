@@ -310,7 +310,12 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	printf("------------------------------\n");
 }
 
-bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures,HImage &modelImageHandle)
+void tutorial()
+{
+
+}
+
+bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures,HImage &modelImageHandle, HDC dc2)
 {
 	TFacePosition facePosition;
 	HImage ResizedImageHandle;
@@ -372,6 +377,11 @@ bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures,HImage &modelImag
 
 		ImageOpened = true;
 		InvalidateRect(hwnd, NULL, TRUE);
+
+
+		HBITMAP hbitmapHandle2;
+		FSDK_SaveImageToHBitmap(modelImageHandle, &hbitmapHandle2);
+		DrawState(dc2, NULL, NULL, (LPARAM)hbitmapHandle2, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
 
 		return true;
 	}
@@ -538,7 +548,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	FSDK_Features mag_facialFeatures;//Ç®éËñ{ÇÃî{ó¶ïœçXî≈
 	bool model_flag = false;
 	HImage modelImageHandle;
-	if (make_model(hwnd, model_facialFeatures, modelImageHandle)) { model_flag = true; }
+	tutorial();
+
+	if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2)) { model_flag = true;	} //Ç®éËñ{ìoò^
+
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		HImage backupHandle;
@@ -551,14 +564,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
 
 			HBITMAP hbitmapHandle; // to store the HBITMAP handle
-			HBITMAP hbitmapHandle2;
 			FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
-			FSDK_SaveImageToHBitmap(modelImageHandle, &hbitmapHandle2);
-
+			
 
 			DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
-			DrawState(dc2, NULL, NULL, (LPARAM)hbitmapHandle2, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
-
 
 
 			for (int i = 0; i < faceCount; i++) {
@@ -622,7 +631,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
-				if (make_model(hwnd, model_facialFeatures, modelImageHandle)) { model_flag = true; }
+				if (make_model(hwnd, model_facialFeatures, modelImageHandle,dc2)) { model_flag = true; }
 			}
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_CONTROL)
 			{
