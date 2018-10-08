@@ -611,6 +611,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	}
 	//ここからチュートリアル2
+	SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
 	SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"2回目"));
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
@@ -670,6 +671,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	//ここからチュートリアル3
+	SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
 	SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"3回目"));
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
@@ -729,6 +731,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2)) { model_flag = true; } //お手本登録
+
+
 	//ここから本番
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
