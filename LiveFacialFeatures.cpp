@@ -313,10 +313,17 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 void tutorial()
 {
 	
-	}
+}
 
-bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures,HImage &modelImageHandle, HDC dc2)
+bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures, HImage &modelImageHandle, HDC dc2, int w, int h)
 {
+	//dc2ÇÃîwñ ÇîíêFÇ≈ìhÇËÇ¬Ç‘Çµ
+	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	SelectObject(dc2, FaceRectanglePen);
+	SelectObject(dc2, FaceRectangleBrush);
+	Rectangle(dc2, 0, 6, w, h+6);
+
 	TFacePosition facePosition;
 	HImage ResizedImageHandle;
 	FSDK_CreateEmptyImage(&ResizedImageHandle);
@@ -378,9 +385,9 @@ bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures,HImage &modelImag
 		ImageOpened = true;
 		InvalidateRect(hwnd, NULL, TRUE);
 
-
 		HBITMAP hbitmapHandle2;
 		FSDK_SaveImageToHBitmap(modelImageHandle, &hbitmapHandle2);
+
 		DrawState(dc2, NULL, NULL, (LPARAM)hbitmapHandle2, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
 
 		return true;
@@ -510,6 +517,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	SetWindowPos(hwnd2, 0, 0, 0, 6 + width, 6 + 32 + (height), SWP_NOZORDER | SWP_NOMOVE);
 	ShowWindow(hwnd2, SW_SHOW);
 
+
+
 	//äÁÇÃé¸ÇËÇÃéläp
 	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(0, 255, 0));
 	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(NULL_BRUSH);
@@ -567,7 +576,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			HBITMAP hbitmapHandle; // to store the HBITMAP handle
 			FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
-
 
 			DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
 
@@ -726,12 +734,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 
 		}
-
-
 	}
 
-	if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2)) { model_flag = true; } //Ç®éËñ{ìoò^
-
+	SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
+	if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2,width,height)) { model_flag = true; } //Ç®éËñ{ìoò^
 
 	//Ç±Ç±Ç©ÇÁñ{î‘
 	while (msg.message != WM_QUIT) {
@@ -813,7 +819,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
-				if (make_model(hwnd, model_facialFeatures, modelImageHandle,dc2)) { model_flag = true; }
+				if (make_model(hwnd, model_facialFeatures, modelImageHandle,dc2,width,height)) { model_flag = true; }
 			}
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_CONTROL)
 			{
