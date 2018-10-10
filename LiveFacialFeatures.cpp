@@ -312,17 +312,18 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 
 void tutorial()
 {
-	
+
 }
 
 bool make_model(HWND hwnd, FSDK_Features &model_facialFeatures, HImage &modelImageHandle, HDC dc2, int w, int h)
 {
 	//dc2ÇÃîwñ ÇîíêFÇ≈ìhÇËÇ¬Ç‘Çµ
+	
 	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
 	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	SelectObject(dc2, FaceRectanglePen);
 	SelectObject(dc2, FaceRectangleBrush);
-	Rectangle(dc2, 0, 6, w, h+6);
+	Rectangle(dc2, 0, 6, w, h + 6);
 
 	TFacePosition facePosition;
 	HImage ResizedImageHandle;
@@ -458,6 +459,32 @@ void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_faci
 	}
 }
 
+void PasteScrean(HDC dc, HWND hwnd, char* str)
+{
+	HImage img;
+	if (FSDKE_OK == FSDK_LoadImageFromFile(&img, str))
+	{
+		int width, height;
+		HImage ResizedImageHandle;
+
+		RECT ClientRect;
+		GetClientRect(hwnd, &ClientRect);
+
+		FSDK_GetImageWidth(img, &width);
+		FSDK_GetImageHeight(img, &height);
+		double resizeCoefficient = min(ClientRect.right / (double)width, (ClientRect.bottom - 16) / (double)height);
+
+		FSDK_FreeImage(ResizedImageHandle);
+		FSDK_CreateEmptyImage(&ResizedImageHandle);
+		FSDK_ResizeImage(img, resizeCoefficient, ResizedImageHandle);
+
+		FSDK_GetImageWidth(ResizedImageHandle, &width);
+		FSDK_GetImageHeight(ResizedImageHandle, &height);
+		HBITMAP hbitmapHandle; // to store the HBITMAP handle
+		FSDK_SaveImageToHBitmap(ResizedImageHandle, &hbitmapHandle);
+		DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
+	}
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -564,6 +591,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//Ç±Ç±Ç©ÇÁÉ`ÉÖÅ[ÉgÉäÉAÉã1
 	SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"1âÒñ⁄"));
 	while (msg.message != WM_QUIT) {
+		PasteScrean(dc2,hwnd2, (char*)"matuko.jpg");
+
 		HImage imageHandle;
 		HImage backupHandle;
 
@@ -737,16 +766,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
-	if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2,width,height)) { model_flag = true; } //Ç®éËñ{ìoò^
+	if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height)) { model_flag = true; } //Ç®éËñ{ìoò^
 
-	//Ç±Ç±Ç©ÇÁñ{î‘
+																											 //Ç±Ç±Ç©ÇÁñ{î‘
 	while (msg.message != WM_QUIT) {
 		HImage imageHandle;
 		HImage backupHandle;
 
 		FSDK_Features facialFeatures;
 		TFacePosition facePosition;
-		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK  && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
+		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
 			long long faceCount = 0;
 			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
@@ -819,7 +848,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
-				if (make_model(hwnd, model_facialFeatures, modelImageHandle,dc2,width,height)) { model_flag = true; }
+				if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height)) { model_flag = true; }
 			}
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_CONTROL)
 			{
