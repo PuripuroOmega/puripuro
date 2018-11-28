@@ -495,9 +495,25 @@ void ScreenClean(HWND hwnd, HImage &modelImageHandle, HDC dc2, int w,int h){
 	Rectangle(dc2, 0, 6, w, h + 6);
 }
 
+void get_model_picture(HImage &model_picture)
+{
+	std::random_device rnd;     // 非決定的な乱数生成器を生成
+	std::mt19937 mt(rnd());     //  メルセンヌ・ツイスタの32ビット版、引数は初期シード値
+	std::uniform_int_distribution<> rand100(0, MAX_IMAGE_NUMBER);        // [0, 99] 範囲の一様乱数
+	char* str;
+	sprintf(str,"%d.jpg", rand100(mt));
+	printf("%s",str);
+
+	/*if (FSDKE_OK == FSDK_LoadImageFromFile(&model_picture, str))
+	{
+		printf("ok");
+	}*/
+
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	if (FSDKE_OK != FSDK_ActivateLibrary("Dg6n6wKXVOM9GkxsLe9IjSK9gYKDlktk4WVynQrKUnSHT+xBl7JZw+Xjk3u0Aghru7HOJh80T2wZ/oXNbwFnnV5UAOFaisKdS4Ik0G/Jc48m0TYlkJRMRDkrAwQkZ+I2ivnb3VXI2Fyx5jloNqhtdk2h64rthIppm8vAoyEmnfY=")) {
+	if (FSDKE_OK != FSDK_ActivateLibrary("tRbkTcFWSLcqkmo3zFwGnxZ6gkJNljFZZ2t4iywAXCy1dnJW7hhPC8hReck7Pmn2uG38WPwSd1B82YKUIll6ya8F18Sd53WL7CjHRjfwxFxNzOka3odXaf1RPlNoHzR/irbHbq1StHhbIyHlxYvEoUyhiOcGlehm2HyQRgFSgTk=")) {
 		MessageBox(0, L"Please run the License Key Wizard (Start - Luxand - FaceSDK - License Key Wizard)\n", L"Error activating FaceSDK", MB_ICONERROR | MB_OK);
 		exit(-1);
 	}
@@ -593,200 +609,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	FSDK_Features mag_facialFeatures;//お手本の倍率変更版
 	bool model_flag = false;
 	HImage modelImageHandle;
-	char pic1[] = "smile.jpeg";
-	char pic2[] = "eyes.jpg";
-	char pic3[] = "normal.jpeg";
-	tutorial();
+	//char pic1[] = "smile.jpeg";
+	//char pic2[] = "eyes.jpg";
+	//char pic3[] = "normal.jpeg";
+	//tutorial();
 
 	//7チュートリアル後に移動if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2)) { model_flag = true;	} //お手本登録
 
-	//ここからチュートリアル1
-	ScreenClean(hwnd, modelImageHandle, dc2, width, height);
-	SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
-	SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"口角を限界まで上げてEnterを押してください"));
-
-	while (msg.message != WM_QUIT) {
-		PasteScrean(dc2, hwnd2, pic1);
-		HImage imageHandle;
-		HImage backupHandle;
-
-		FSDK_Features facialFeatures;
-		TFacePosition facePosition;
-		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
-			long long IDs[256];
-			long long faceCount = 0;
-			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
-
-			HBITMAP hbitmapHandle; // to store the HBITMAP handle
-			FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
-
-			DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
-
-
-			for (int i = 0; i < faceCount; i++) {
-
-				FSDK_GetTrackerFacePosition(tracker, 0, IDs[i], &facePosition);
-				FSDK_GetTrackerFacialFeatures(tracker, 0, IDs[i], &facialFeatures);
-
-				int x1 = facePosition.xc - (int)(facePosition.w*0.6);
-				int y1 = facePosition.yc - (int)(facePosition.w*0.5);
-				int x2 = facePosition.xc + (int)(facePosition.w*0.6);
-				int y2 = facePosition.yc + (int)(facePosition.w*0.7);
-
-				SelectObject(dc, FaceRectanglePen);
-				SelectObject(dc, FaceRectangleBrush);
-				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
-			}
-
-			DeleteObject(hbitmapHandle); // delete the HBITMAP object
-			FSDK_FreeImage(imageHandle);// delete the FSDK image handle
-		}
-
-
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-
-			if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
-			{
-				Get_Angle(facialFeatures);
-				FSDK_GrabFrame(cameraHandle, &backupHandle);
-				FSDK_MirrorImage(backupHandle, TRUE);
-				FSDK_SaveImageToFile(backupHandle, "tutorial.jpg");
-				break;
-			}
-
-		}
-
-
-	}
-	//ここからチュートリアル2
-	ScreenClean(hwnd, modelImageHandle, dc2, width, height);
-	SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
-	SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"眼を限界まで見開いてEnterを押してください"));
-
-	while (msg.message != WM_QUIT) {
-		PasteScrean(dc2, hwnd2, pic2);
-		HImage imageHandle;
-		HImage backupHandle;
-
-		FSDK_Features facialFeatures;
-		TFacePosition facePosition;
-		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
-			long long IDs[256];
-			long long faceCount = 0;
-			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
-
-			HBITMAP hbitmapHandle; // to store the HBITMAP handle
-			FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
-
-
-			DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
-
-
-			for (int i = 0; i < faceCount; i++) {
-
-				FSDK_GetTrackerFacePosition(tracker, 0, IDs[i], &facePosition);
-				FSDK_GetTrackerFacialFeatures(tracker, 0, IDs[i], &facialFeatures);
-
-				int x1 = facePosition.xc - (int)(facePosition.w*0.6);
-				int y1 = facePosition.yc - (int)(facePosition.w*0.5);
-				int x2 = facePosition.xc + (int)(facePosition.w*0.6);
-				int y2 = facePosition.yc + (int)(facePosition.w*0.7);
-
-				SelectObject(dc, FaceRectanglePen);
-				SelectObject(dc, FaceRectangleBrush);
-				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
-			}
-
-			DeleteObject(hbitmapHandle); // delete the HBITMAP object
-			FSDK_FreeImage(imageHandle);// delete the FSDK image handle
-		}
-
-
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-
-			if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
-			{
-				Get_Angle(facialFeatures);
-				FSDK_GrabFrame(cameraHandle, &backupHandle);
-				FSDK_MirrorImage(backupHandle, TRUE);
-				FSDK_SaveImageToFile(backupHandle, "tutorial2.jpg");
-				break;
-			}
-
-		}
-
-
-	}
-
-	//ここからチュートリアル3
-	ScreenClean(hwnd, modelImageHandle, dc2, width, height);
-	SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
-	SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"真顔でEnterを押してください"));
-
-	while (msg.message != WM_QUIT) {
-		PasteScrean(dc2, hwnd2, pic3);
-		HImage backupHandle;
-		HImage imageHandle;
-
-		FSDK_Features facialFeatures;
-		TFacePosition facePosition;
-		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
-			long long IDs[256];
-			long long faceCount = 0;
-			FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
-
-			HBITMAP hbitmapHandle; // to store the HBITMAP handle
-			FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
-
-
-			DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
-
-
-			for (int i = 0; i < faceCount; i++) {
-
-				FSDK_GetTrackerFacePosition(tracker, 0, IDs[i], &facePosition);
-				FSDK_GetTrackerFacialFeatures(tracker, 0, IDs[i], &facialFeatures);
-
-				int x1 = facePosition.xc - (int)(facePosition.w*0.6);
-				int y1 = facePosition.yc - (int)(facePosition.w*0.5);
-				int x2 = facePosition.xc + (int)(facePosition.w*0.6);
-				int y2 = facePosition.yc + (int)(facePosition.w*0.7);
-
-				SelectObject(dc, FaceRectanglePen);
-				SelectObject(dc, FaceRectangleBrush);
-				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
-			}
-
-			DeleteObject(hbitmapHandle); // delete the HBITMAP object
-			FSDK_FreeImage(imageHandle);// delete the FSDK image handle
-		}
-
-
-		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-
-			if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
-			{
-				Get_Angle(facialFeatures);
-				FSDK_GrabFrame(cameraHandle, &backupHandle);
-				FSDK_MirrorImage(backupHandle, TRUE);
-				FSDK_SaveImageToFile(backupHandle, "tutorial3.jpg");
-				break;
-			}
-
-		}
-	}
-
-	SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
-	if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2,width,height)) { model_flag = true; } //お手本登録
+	/*
+		チュートリアル
+	*/
+	get_model_picture(modelImageHandle);
 
 	//ここから本番
 	while (msg.message != WM_QUIT) {
@@ -795,6 +628,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		FSDK_Features facialFeatures;
 		TFacePosition facePosition;
+
+
 		if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK  && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
 			long long IDs[256];
 			long long faceCount = 0;
@@ -853,9 +688,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			DispatchMessage(&msg);
 			if (msg.message == WM_KEYDOWN && msg.wParam == VK_RETURN)
 			{
+
 				//SavefacialFeatures(facialFeatures);
-				GetPoint(facialFeatures, model_facialFeatures, mag_facialFeatures);
+				//GetPoint(facialFeatures, model_facialFeatures, mag_facialFeatures);
 				//FSDK_SaveImageToFile(backupHandle, "capture.jpg");
+				get_model_picture(modelImageHandle);
 			}
 
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
@@ -904,3 +741,196 @@ int _tmain(int argc, _TCHAR* argv[])
 	FSDK_Finalize();
 	return 0;
 }
+
+
+
+/*
+//ここからチュートリアル1
+ScreenClean(hwnd, modelImageHandle, dc2, width, height);
+SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
+SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"口角を限界まで上げてEnterを押してください"));
+
+while (msg.message != WM_QUIT) {
+	PasteScrean(dc2, hwnd2, pic1);
+	HImage imageHandle;
+	HImage backupHandle;
+
+	FSDK_Features facialFeatures;
+	TFacePosition facePosition;
+	if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
+		long long IDs[256];
+		long long faceCount = 0;
+		FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
+
+		HBITMAP hbitmapHandle; // to store the HBITMAP handle
+		FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
+
+		DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
+
+
+		for (int i = 0; i < faceCount; i++) {
+
+			FSDK_GetTrackerFacePosition(tracker, 0, IDs[i], &facePosition);
+			FSDK_GetTrackerFacialFeatures(tracker, 0, IDs[i], &facialFeatures);
+
+			int x1 = facePosition.xc - (int)(facePosition.w*0.6);
+			int y1 = facePosition.yc - (int)(facePosition.w*0.5);
+			int x2 = facePosition.xc + (int)(facePosition.w*0.6);
+			int y2 = facePosition.yc + (int)(facePosition.w*0.7);
+
+			SelectObject(dc, FaceRectanglePen);
+			SelectObject(dc, FaceRectangleBrush);
+			Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
+		}
+
+		DeleteObject(hbitmapHandle); // delete the HBITMAP object
+		FSDK_FreeImage(imageHandle);// delete the FSDK image handle
+	}
+
+
+	if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+
+		if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
+		{
+			Get_Angle(facialFeatures);
+			FSDK_GrabFrame(cameraHandle, &backupHandle);
+			FSDK_MirrorImage(backupHandle, TRUE);
+			FSDK_SaveImageToFile(backupHandle, "tutorial.jpg");
+			break;
+		}
+
+	}
+
+
+}
+//ここからチュートリアル2
+ScreenClean(hwnd, modelImageHandle, dc2, width, height);
+SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
+SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"眼を限界まで見開いてEnterを押してください"));
+
+while (msg.message != WM_QUIT) {
+	PasteScrean(dc2, hwnd2, pic2);
+	HImage imageHandle;
+	HImage backupHandle;
+
+	FSDK_Features facialFeatures;
+	TFacePosition facePosition;
+	if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
+		long long IDs[256];
+		long long faceCount = 0;
+		FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
+
+		HBITMAP hbitmapHandle; // to store the HBITMAP handle
+		FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
+
+
+		DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
+
+
+		for (int i = 0; i < faceCount; i++) {
+
+			FSDK_GetTrackerFacePosition(tracker, 0, IDs[i], &facePosition);
+			FSDK_GetTrackerFacialFeatures(tracker, 0, IDs[i], &facialFeatures);
+
+			int x1 = facePosition.xc - (int)(facePosition.w*0.6);
+			int y1 = facePosition.yc - (int)(facePosition.w*0.5);
+			int x2 = facePosition.xc + (int)(facePosition.w*0.6);
+			int y2 = facePosition.yc + (int)(facePosition.w*0.7);
+
+			SelectObject(dc, FaceRectanglePen);
+			SelectObject(dc, FaceRectangleBrush);
+			Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
+		}
+
+		DeleteObject(hbitmapHandle); // delete the HBITMAP object
+		FSDK_FreeImage(imageHandle);// delete the FSDK image handle
+	}
+
+
+	if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+
+		if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
+		{
+			Get_Angle(facialFeatures);
+			FSDK_GrabFrame(cameraHandle, &backupHandle);
+			FSDK_MirrorImage(backupHandle, TRUE);
+			FSDK_SaveImageToFile(backupHandle, "tutorial2.jpg");
+			break;
+		}
+
+	}
+
+
+}
+
+//ここからチュートリアル3
+ScreenClean(hwnd, modelImageHandle, dc2, width, height);
+SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
+SendMessage(hwnd2, LB_ADDSTRING, 0, (LPARAM)(L"真顔でEnterを押してください"));
+
+while (msg.message != WM_QUIT) {
+	PasteScrean(dc2, hwnd2, pic3);
+	HImage backupHandle;
+	HImage imageHandle;
+
+	FSDK_Features facialFeatures;
+	TFacePosition facePosition;
+	if (FSDK_GrabFrame(cameraHandle, &imageHandle) == FSDKE_OK && FSDK_MirrorImage(imageHandle, TRUE) == FSDKE_OK) { // grab the current frame from the camera
+		long long IDs[256];
+		long long faceCount = 0;
+		FSDK_FeedFrame(tracker, 0, imageHandle, &faceCount, IDs, sizeof(IDs));
+
+		HBITMAP hbitmapHandle; // to store the HBITMAP handle
+		FSDK_SaveImageToHBitmap(imageHandle, &hbitmapHandle);
+
+
+		DrawState(dc, NULL, NULL, (LPARAM)hbitmapHandle, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
+
+
+		for (int i = 0; i < faceCount; i++) {
+
+			FSDK_GetTrackerFacePosition(tracker, 0, IDs[i], &facePosition);
+			FSDK_GetTrackerFacialFeatures(tracker, 0, IDs[i], &facialFeatures);
+
+			int x1 = facePosition.xc - (int)(facePosition.w*0.6);
+			int y1 = facePosition.yc - (int)(facePosition.w*0.5);
+			int x2 = facePosition.xc + (int)(facePosition.w*0.6);
+			int y2 = facePosition.yc + (int)(facePosition.w*0.7);
+
+			SelectObject(dc, FaceRectanglePen);
+			SelectObject(dc, FaceRectangleBrush);
+			Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
+		}
+
+		DeleteObject(hbitmapHandle); // delete the HBITMAP object
+		FSDK_FreeImage(imageHandle);// delete the FSDK image handle
+	}
+
+
+	if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+
+		if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
+		{
+			Get_Angle(facialFeatures);
+			FSDK_GrabFrame(cameraHandle, &backupHandle);
+			FSDK_MirrorImage(backupHandle, TRUE);
+			FSDK_SaveImageToFile(backupHandle, "tutorial3.jpg");
+			break;
+		}
+
+	}
+}
+
+SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
+if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height)) { model_flag = true; } //お手本登録
+
+*/
