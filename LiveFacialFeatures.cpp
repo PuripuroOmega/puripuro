@@ -413,17 +413,25 @@ void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_faci
 {
 	int live_sa = facialFeatures[2].y - facialFeatures[22].y;
 	int model_sa = model_facialFeatures[2].y - model_facialFeatures[22].y;
+	//顔の上と下の比率
+	int live_up = facialFeatures[2].y - facialFeatures[49].y;
+	int live_down = facialFeatures[22].y - facialFeatures[49].y;
+	int model_up = model_facialFeatures[2].y - model_facialFeatures[49].y;
+	int model_down = model_facialFeatures[22].y - model_facialFeatures[49].y;
+	double model_ud = (double)model_up / model_down;
+	double live_ud = (double)live_up / live_down;
+	//顔の右と左の比率
 	int live_right = facialFeatures[69].x - facialFeatures[2].x;
 	int live_left = facialFeatures[2].x - facialFeatures[68].x;
 	int model_right = model_facialFeatures[69].x - model_facialFeatures[2].x;
 	int model_left = model_facialFeatures[2].x - model_facialFeatures[68].x;
-	double model = (double)model_right / model_left;
-	double live = (double)live_right / live_left;
+	double model_rl = (double)model_right / model_left;
+	double live_rl = (double)live_right / live_left;
 
 	SelectObject(dc, Pen);
 	SelectObject(dc, Brush);
 
-	if (live_sa - model_sa > 3) {
+	if (live_ud - model_ud < 0) {
 		//printf("もっと上を向きましょう\n");
 		MoveToEx(dc, 320, 50, NULL);
 		LineTo(dc, 320, 30);
@@ -431,7 +439,7 @@ void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_faci
 		MoveToEx(dc, 320, 30, NULL);
 		LineTo(dc, 330, 40);
 	}
-	else if (model_sa - live_sa > 3) {
+	else if (live_ud - model_ud > 0) {
 		//printf("もっと下\n");
 
 		MoveToEx(dc, 320, 430, NULL);
@@ -442,14 +450,14 @@ void ShowTheArrow(HDC dc, FSDK_Features facialFeatures, FSDK_Features model_faci
 	}
 	else {}//printf("その向きで合ってるよ\n"); }
 
-	if (model - live < 0) {
+	if (model_rl - live_rl < 0) {
 		MoveToEx(dc, 600, 190 + 30, NULL);
 		LineTo(dc, 620, 190 + 30);
 		LineTo(dc, 610, 180 + 30);
 		MoveToEx(dc, 620, 190 + 30, NULL);
 		LineTo(dc, 610, 200 + 30);
 	}
-	else if (model - live > 0) {
+	else if (model_rl - live_rl > 0) {
 		MoveToEx(dc, 40, 190 + 30, NULL);
 		LineTo(dc, 20, 190 + 30);
 		LineTo(dc, 30, 180 + 30);
@@ -495,19 +503,71 @@ void ScreenClean(HWND hwnd, HImage &modelImageHandle, HDC dc2, int w,int h){
 	Rectangle(dc2, 0, 6, w, h + 6);
 }
 
-void get_model_picture(HImage &model_picture)
+void get_model_picture(HWND hwnd, FSDK_Features &model_facialFeatures, HImage &modelImageHandle, HDC dc2, int w, int h)
 {
+	HPEN FaceRectanglePen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+	HBRUSH FaceRectangleBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	SelectObject(dc2, FaceRectanglePen);
+	SelectObject(dc2, FaceRectangleBrush);
+	Rectangle(dc2, 0, 6, w, h + 6);
+
+	TFacePosition facePosition;
+	HImage ResizedImageHandle;
+	FSDK_CreateEmptyImage(&ResizedImageHandle);
+	bool ImageOpened = false;
+	int FaceDetected = -1;
+	int width, height;
+
+	RECT ClientRect;
+	GetClientRect(hwnd, &ClientRect);
+
 	std::random_device rnd;     // 非決定的な乱数生成器を生成
 	std::mt19937 mt(rnd());     //  メルセンヌ・ツイスタの32ビット版、引数は初期シード値
 	std::uniform_int_distribution<> rand100(0, MAX_IMAGE_NUMBER);        // [0, 99] 範囲の一様乱数
-	char* str;
-	sprintf(str,"%d.jpg", rand100(mt));
-	printf("%s",str);
+	std::string str = "./rename/" + std::to_string(rand100(mt)) + ".jpg";
 
-	/*if (FSDKE_OK == FSDK_LoadImageFromFile(&model_picture, str))
+	if (FSDKE_OK == FSDK_LoadImageFromFile(&modelImageHandle, str.c_str()))
 	{
-		printf("ok");
-	}*/
+		FaceDetected = FSDK_DetectFace(modelImageHandle, &facePosition);
+		if (FaceDetected == FSDKE_OK)
+			FSDK_DetectFacialFeaturesInRegion(modelImageHandle, &facePosition, &model_facialFeatures);
+
+		FSDK_GetImageWidth(modelImageHandle, &width);
+		FSDK_GetImageHeight(modelImageHandle, &height);
+		double resizeCoefficient = min(ClientRect.right / (double)width, (ClientRect.bottom - 16) / (double)height);
+
+		FSDK_FreeImage(ResizedImageHandle);
+		FSDK_CreateEmptyImage(&ResizedImageHandle);
+		FSDK_ResizeImage(modelImageHandle, resizeCoefficient, ResizedImageHandle);
+
+		FSDK_GetImageWidth(ResizedImageHandle, &width);
+		FSDK_GetImageHeight(ResizedImageHandle, &height);
+
+		FSDK_CopyImage(ResizedImageHandle, modelImageHandle);
+
+		//FSDK_FreeImage(imageHandle);// delete the FSDK image handle
+
+		if (FaceDetected == FSDKE_OK)
+		{
+			facePosition.xc = (int)(resizeCoefficient * facePosition.xc);
+			facePosition.yc = (int)(resizeCoefficient * facePosition.yc);
+			facePosition.w = (int)(resizeCoefficient * facePosition.w);
+			for (int i = 0; i < FSDK_FACIAL_FEATURE_COUNT; i++)
+			{
+				model_facialFeatures[i].x = (int)(resizeCoefficient * model_facialFeatures[i].x);
+				model_facialFeatures[i].y = (int)(resizeCoefficient * model_facialFeatures[i].y);
+			}
+		}
+
+		ImageOpened = true;
+		InvalidateRect(hwnd, NULL, TRUE);
+
+		HBITMAP hbitmapHandle2;
+		FSDK_SaveImageToHBitmap(modelImageHandle, &hbitmapHandle2);
+
+		DrawState(dc2, NULL, NULL, (LPARAM)hbitmapHandle2, NULL, 0, 16, width, height, DST_BITMAP | DSS_NORMAL);
+
+	}
 
 }
 
@@ -619,7 +679,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	/*
 		チュートリアル
 	*/
-	get_model_picture(modelImageHandle);
+	get_model_picture(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height);
 
 	//ここから本番
 	while (msg.message != WM_QUIT) {
@@ -690,9 +750,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			{
 
 				//SavefacialFeatures(facialFeatures);
-				//GetPoint(facialFeatures, model_facialFeatures, mag_facialFeatures);
+				GetPoint(facialFeatures, model_facialFeatures, mag_facialFeatures);
 				//FSDK_SaveImageToFile(backupHandle, "capture.jpg");
-				get_model_picture(modelImageHandle);
+				get_model_picture(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height);
 			}
 
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
