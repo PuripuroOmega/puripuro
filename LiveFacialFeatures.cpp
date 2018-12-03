@@ -280,6 +280,40 @@ void RightorLeft(FSDK_Features facialFeatures, FSDK_Features model_facialFeature
 
 }
 
+void saveEvaluation(std::vector<int> point,int size, int sum)
+{
+	static bool open_flag = false;
+	time_t t = time(nullptr);
+	const tm* lt = localtime(&t);
+
+	//sに独自フォーマットになるように連結していく
+	std::stringstream s;
+	s << "20";
+	s << lt->tm_year - 100; //100を引くことで20xxのxxの部分になる
+	s << lt->tm_mon + 1; //月を0からカウントしているため
+	s << lt->tm_mday; //そのまま
+	s << ".txt";
+	std::string tname = s.str();
+	std::ofstream outputfile;
+	if (!open_flag)
+	{
+		outputfile.open(tname);
+		open_flag = true;
+	}
+	else
+		outputfile.open(tname,std::ios::app);
+
+	std::string str;
+	for (int i = 0; i < size; i++)
+	{
+		str += std::to_string(point[i]);
+		str += ",";
+	}
+	str += std::to_string(sum);
+	outputfile << str << "\n";
+	outputfile.close();
+}
+
 void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, FSDK_Features mag_facialFeatures, int count)
 {
 	std::vector<int> point;
@@ -305,9 +339,10 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	printf("口　　　　　：%d点\n", point[6]);
 	printf("顔の上下　　：%d点\n", point[7]);
 	printf("顔の左右　　：%d点\n", point[8]);
-	point.clear();
 	printf("総合　　　　：%d点\n", sum);
 	printf("------------------------------\n");
+
+	saveEvaluation(point,point.size(),sum);
 }
 
 void tutorial()
@@ -573,6 +608,7 @@ int get_model_picture(HWND hwnd, FSDK_Features &model_facialFeatures, HImage &mo
 
 	return ++count;
 }
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -1006,3 +1042,4 @@ SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
 if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height)) { model_flag = true; } //お手本登録
 
 */
+

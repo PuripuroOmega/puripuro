@@ -13,6 +13,8 @@
 #include <random>
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <iomanip>
 
 #define MAX_IMAGE_NUMBER 10590
 
