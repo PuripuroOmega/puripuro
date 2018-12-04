@@ -314,7 +314,7 @@ void saveEvaluation(std::vector<int> point,int size, int sum)
 	outputfile.close();
 }
 
-void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, FSDK_Features mag_facialFeatures, int count)
+int GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, FSDK_Features mag_facialFeatures, int count)
 {
 	std::vector<int> point;
 	int sum = 0;
@@ -339,11 +339,15 @@ void GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, 
 	printf("口　　　　　：%d点\n", point[6]);
 	printf("顔の上下　　：%d点\n", point[7]);
 	printf("顔の左右　　：%d点\n", point[8]);
+	point.clear();
 	printf("総合　　　　：%d点\n", sum);
 	printf("------------------------------\n");
 
-	saveEvaluation(point,point.size(),sum);
+	saveEvaluation(point, point.size(), sum);
+
+	return sum;
 }
+
 
 void tutorial()
 {
@@ -610,6 +614,22 @@ int get_model_picture(HWND hwnd, FSDK_Features &model_facialFeatures, HImage &mo
 }
 
 
+int ScoreAve(std::vector<int> &score)
+{
+	int average=0;
+	std::sort(score.begin(), score.end());
+
+	printf("\n");
+
+	for (int i = 10; i < 90; i++) {
+		average += score[i];
+	}
+
+	average = average / 80;
+
+	return average;
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	if (FSDKE_OK != FSDK_ActivateLibrary("tRbkTcFWSLcqkmo3zFwGnxZ6gkJNljFZZ2t4iywAXCy1dnJW7hhPC8hReck7Pmn2uG38WPwSd1B82YKUIll6ya8F18Sd53WL7CjHRjfwxFxNzOka3odXaf1RPlNoHzR/irbHbq1StHhbIyHlxYvEoUyhiOcGlehm2HyQRgFSgTk=")) {
@@ -712,6 +732,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//char pic2[] = "eyes.jpg";
 	//char pic3[] = "normal.jpeg";
 	//tutorial();
+	std::vector<int> score;
 
 	//7チュートリアル後に移動if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2)) { model_flag = true;	} //お手本登録
 
@@ -792,7 +813,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				//SavefacialFeatures(facialFeatures);
 				//FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 				if (count != 0) {
-					GetPoint(facialFeatures, model_facialFeatures, mag_facialFeatures, count);
+					score.push_back(GetPoint(facialFeatures, model_facialFeatures, mag_facialFeatures, count));
 				}
 				count = get_model_picture(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height);
 				model_flag = true;
@@ -829,6 +850,28 @@ int _tmain(int argc, _TCHAR* argv[])
 			//100回やったら
 			if (count > 100)
 			{
+				int averagescore = ScoreAve(score);
+
+				time_t t = time(nullptr);
+				const tm* lt = localtime(&t);
+
+				//sに独自フォーマットになるように連結していく
+				std::stringstream s;
+				s << "20";
+				s << lt->tm_year - 100; //100を引くことで20xxのxxの部分になる
+				s << lt->tm_mon + 1; //月を0からカウントしているため
+				s << lt->tm_mday; //そのまま
+				s << ".txt";
+				std::string tname = s.str();
+				std::ofstream outputfile;
+				outputfile.open(tname, std::ios::app);
+
+				std::string str;
+				str += "averagesore = ";
+				str += std::to_string(averagescore);
+				outputfile << str << "\n";
+				outputfile.close();
+
 				break;
 			}
 

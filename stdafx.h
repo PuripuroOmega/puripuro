@@ -15,6 +15,9 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <vector> 
+#include <algorithm>
+#include <functional>
 
 #define MAX_IMAGE_NUMBER 10590
 
