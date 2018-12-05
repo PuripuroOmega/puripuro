@@ -288,7 +288,7 @@ void saveEvaluation(std::vector<int> point,int size, int sum)
 
 	//sに独自フォーマットになるように連結していく
 	std::stringstream s;
-	s << "20";
+	s << "./result/20";
 	s << lt->tm_year - 100; //100を引くことで20xxのxxの部分になる
 	s << lt->tm_mon + 1; //月を0からカウントしているため
 	s << lt->tm_mday; //そのまま
@@ -339,15 +339,13 @@ int GetPoint(FSDK_Features facialFeatures, FSDK_Features model_facialFeatures, F
 	printf("口　　　　　：%d点\n", point[6]);
 	printf("顔の上下　　：%d点\n", point[7]);
 	printf("顔の左右　　：%d点\n", point[8]);
-	point.clear();
 	printf("総合　　　　：%d点\n", sum);
 	printf("------------------------------\n");
 
-	saveEvaluation(point, point.size(), sum);
+	saveEvaluation(point,point.size(),sum);
 
 	return sum;
 }
-
 
 void tutorial()
 {
@@ -613,10 +611,9 @@ int get_model_picture(HWND hwnd, FSDK_Features &model_facialFeatures, HImage &mo
 	return ++count;
 }
 
-
 int ScoreAve(std::vector<int> &score)
 {
-	int average=0;
+	int average = 0;
 	std::sort(score.begin(), score.end());
 
 	printf("\n");
@@ -629,6 +626,7 @@ int ScoreAve(std::vector<int> &score)
 
 	return average;
 }
+
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -727,6 +725,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	FSDK_Features model_facialFeatures;
 	FSDK_Features mag_facialFeatures;//お手本の倍率変更版
 	bool model_flag = false;
+	bool line_flag = true;
 	HImage modelImageHandle;
 	//char pic1[] = "smile.jpeg";
 	//char pic2[] = "eyes.jpg";
@@ -780,7 +779,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				Rectangle(dc, x1, 16 + y1, x2, 16 + y2);
 
 
-				if (model_flag) {
+				if (model_flag && line_flag) {
 					//リアルタイムの線と点
 					drawingLine(dc, FeatureLinePen, FeatureLineBrush, FeatureLinePen, FeatureLineBrush, facialFeatures, facialFeatures);
 					SelectObject(dc, FeatureCirclesPen);
@@ -809,7 +808,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			DispatchMessage(&msg);
 			if (msg.message == WM_KEYDOWN && msg.wParam == VK_RETURN)
 			{
-
 				//SavefacialFeatures(facialFeatures);
 				//FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 				if (count != 0) {
@@ -818,7 +816,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				count = get_model_picture(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height);
 				model_flag = true;
 			}
-
+			/*
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SPACE)
 			{
 				Get_Angle(facialFeatures);
@@ -826,6 +824,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				FSDK_MirrorImage(backupHandle, TRUE);
 				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
+			
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
@@ -839,9 +838,10 @@ int _tmain(int argc, _TCHAR* argv[])
 					FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 				}
 			}
+			*/
 			else if (msg.message == WM_KEYDOWN && msg.wParam == 0x4C)
 			{
-				model_flag = 1 - model_flag;
+				line_flag = 1 - line_flag;
 			}
 
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
@@ -867,7 +867,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				outputfile.open(tname, std::ios::app);
 
 				std::string str;
-				str += "averagesore = ";
+				str += "averagesore =\n";
 				str += std::to_string(averagescore);
 				outputfile << str << "\n";
 				outputfile.close();
@@ -887,6 +887,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	FSDK_FreeVideoFormatList(VideoFormatList);
 	FSDK_FreeCameraList(CameraList, CameraCount);
+
+	printf("お疲れ様です\n");
+	printf("最終日にresultフォルダを提出してください\n");
+
 
 	FSDK_FinalizeCapturing();
 	FSDK_Finalize();
@@ -1085,4 +1089,5 @@ SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
 if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height)) { model_flag = true; } //お手本登録
 
 */
+
 
