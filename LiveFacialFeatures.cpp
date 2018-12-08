@@ -573,7 +573,7 @@ int get_model_picture(HWND hwnd, FSDK_Features &model_facialFeatures, HImage &mo
 
 	while ((FSDKE_OK != FSDK_LoadImageFromFile(&modelImageHandle, str.c_str())) || (FSDKE_OK != FSDK_DetectFace(modelImageHandle, &facePosition)))
 	{
-		str = "./rename/" + std::to_string(rand100(mt)) + ".jpg";
+		str = "./model/" + std::to_string(rand100(mt)) + ".jpg";
 	}
 	FSDK_DetectFacialFeaturesInRegion(modelImageHandle, &facePosition, &model_facialFeatures);
 
@@ -611,18 +611,18 @@ int get_model_picture(HWND hwnd, FSDK_Features &model_facialFeatures, HImage &mo
 	return ++count;
 }
 
-int ScoreAve(std::vector<int> &score)
+double ScoreAve(std::vector<int> &score)
 {
-	int average = 0;
+	double average = 0;
 	std::sort(score.begin(), score.end());
 
 	printf("\n");
 
-	for (int i = 10; i < 90; i++) {
+	for (int i = 5; i < 45; i++) {
 		average += score[i];
 	}
 
-	average = average / 80;
+	average = average / 40.0;
 
 	return average;
 }
@@ -630,7 +630,7 @@ int ScoreAve(std::vector<int> &score)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	if (FSDKE_OK != FSDK_ActivateLibrary("tRbkTcFWSLcqkmo3zFwGnxZ6gkJNljFZZ2t4iywAXCy1dnJW7hhPC8hReck7Pmn2uG38WPwSd1B82YKUIll6ya8F18Sd53WL7CjHRjfwxFxNzOka3odXaf1RPlNoHzR/irbHbq1StHhbIyHlxYvEoUyhiOcGlehm2HyQRgFSgTk=")) {
+	if (FSDKE_OK != FSDK_ActivateLibrary("WPlXFBuBWQf9YumVn8pn1K3pmOQ/tgdZDXAgoyto83LldlNSCHGVbdlJqRrAnpW17s1BzrI+sMmCht32lG8fAS2LDAGo18VZe98xqXGW2s2ZV+Jx48VIR2Pc7Juyc//gtq+MbRCEW0zQsPbCFt45HGzMPdgepVa8Zw1KG3NKj/k=")) {
 		MessageBox(0, L"Please run the License Key Wizard (Start - Luxand - FaceSDK - License Key Wizard)\n", L"Error activating FaceSDK", MB_ICONERROR | MB_OK);
 		exit(-1);
 	}
@@ -848,16 +848,16 @@ int _tmain(int argc, _TCHAR* argv[])
 				break;
 
 			//100回やったら
-			if (count > 100)
+			if (count > 50)
 			{
-				int averagescore = ScoreAve(score);
+				double averagescore = ScoreAve(score);
 
 				time_t t = time(nullptr);
 				const tm* lt = localtime(&t);
 
 				//sに独自フォーマットになるように連結していく
 				std::stringstream s;
-				s << "20";
+				s << "./result/20";
 				s << lt->tm_year - 100; //100を引くことで20xxのxxの部分になる
 				s << lt->tm_mon + 1; //月を0からカウントしているため
 				s << lt->tm_mday; //そのまま
@@ -891,9 +891,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	printf("お疲れ様です\n");
 	printf("最終日にresultフォルダを提出してください\n");
 
-
 	FSDK_FinalizeCapturing();
 	FSDK_Finalize();
+
+	getchar();
+
 	return 0;
 }
 
