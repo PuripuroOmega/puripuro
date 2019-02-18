@@ -630,7 +630,7 @@ double ScoreAve(std::vector<int> &score)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	if (FSDKE_OK != FSDK_ActivateLibrary("WPlXFBuBWQf9YumVn8pn1K3pmOQ/tgdZDXAgoyto83LldlNSCHGVbdlJqRrAnpW17s1BzrI+sMmCht32lG8fAS2LDAGo18VZe98xqXGW2s2ZV+Jx48VIR2Pc7Juyc//gtq+MbRCEW0zQsPbCFt45HGzMPdgepVa8Zw1KG3NKj/k=")) {
+	if (FSDKE_OK != FSDK_ActivateLibrary("Kbq4LOnHHAGIFkpZDHQ+VsNlnIcI1NQBaarwoJqGJeE7hg0aFROdAiVMD7oqptBpAKrL58V8GWFOfXChidYrNt06QnuRhkeTALkhaBxLHZdck1/Qun/Dksper0QbmE1yIwKEpjyEl+ZkKHl8UAvq3aK+05og18dnZPPO7BXUza8=")) {
 		MessageBox(0, L"Please run the License Key Wizard (Start - Luxand - FaceSDK - License Key Wizard)\n", L"Error activating FaceSDK", MB_ICONERROR | MB_OK);
 		exit(-1);
 	}
@@ -740,7 +740,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	*/
 	//int count = get_model_picture(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height);
 
-	
+
 
 	//‚±‚±‚©‚ç–{”Ô
 	int count=0;
@@ -824,7 +824,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				FSDK_MirrorImage(backupHandle, TRUE);
 				FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
-			
+
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
@@ -1091,5 +1091,3 @@ SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
 if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height)) { model_flag = true; } //‚¨Žè–{“o˜^
 
 */
-
-
