@@ -860,7 +860,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			FSDK_MirrorImage(backupHandle, TRUE);
 			FSDK_SaveImageToFile(backupHandle, "capture.jpg");
 			}
+
 			*/
+
 			else if (msg.message == WM_KEYDOWN && msg.wParam == VK_SHIFT)
 			{
 				model_flag = false;
@@ -1128,5 +1130,3 @@ SendMessage(hwnd2, LB_RESETCONTENT, 0, 0);
 if (make_model(hwnd, model_facialFeatures, modelImageHandle, dc2, width, height)) { model_flag = true; } //‚¨Žè–{“o˜^
 
 */
-
-
