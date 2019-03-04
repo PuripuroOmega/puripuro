@@ -631,7 +631,7 @@ double ScoreAve(std::vector<int> &score)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	if (FSDKE_OK != FSDK_ActivateLibrary("Kbq4LOnHHAGIFkpZDHQ+VsNlnIcI1NQBaarwoJqGJeE7hg0aFROdAiVMD7oqptBpAKrL58V8GWFOfXChidYrNt06QnuRhkeTALkhaBxLHZdck1/Qun/Dksper0QbmE1yIwKEpjyEl+ZkKHl8UAvq3aK+05og18dnZPPO7BXUza8=")) {
+	if (FSDKE_OK != FSDK_ActivateLibrary("AAm1sPZGIj+wGuzGTYgZwDEglOJVqWpujAPaUD9aE5Z+hWYHG+QGTAVQ0Ud802lXYH7jacFO+G/GjQboJlieKGN7a4n0TU9XDIQd014LcY7wD4WoxBn723gI80F8pGL4VYQE6FMZqpZuP6TxqVz4lUzsSnNGCRe1sqyNHf8T5C8=")) {
 		MessageBox(0, L"Please run the License Key Wizard (Start - Luxand - FaceSDK - License Key Wizard)\n", L"Error activating FaceSDK", MB_ICONERROR | MB_OK);
 		exit(-1);
 	}
